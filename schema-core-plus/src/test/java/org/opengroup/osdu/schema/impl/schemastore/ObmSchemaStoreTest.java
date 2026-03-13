@@ -15,7 +15,7 @@ import org.opengroup.osdu.core.common.partition.PartitionPropertyResolver;
 import org.opengroup.osdu.core.common.provider.interfaces.ITenantFactory;
 import org.opengroup.osdu.core.obm.core.Driver;
 import org.opengroup.osdu.core.obm.core.ObmDriverRuntimeException;
-import org.opengroup.osdu.core.obm.core.model.Blob;
+import org.opengroup.osdu.core.obm.core.model.ObmBlob;
 import org.opengroup.osdu.core.obm.core.persistence.ObmDestination;
 import org.opengroup.osdu.schema.configuration.PartitionPropertyNames;
 import org.opengroup.osdu.schema.configuration.PropertiesConfiguration;
@@ -39,7 +39,7 @@ public class ObmSchemaStoreTest {
     @Mock
     private Driver driver;
     @Mock
-    private Blob blob;
+    private ObmBlob blob;
     @Mock
     private ObmDestinationProvider destinationProvider;
     @Mock

@@ -28,7 +28,7 @@ import org.opengroup.osdu.core.common.partition.PartitionPropertyResolver;
 import org.opengroup.osdu.core.common.provider.interfaces.ITenantFactory;
 import org.opengroup.osdu.core.obm.core.Driver;
 import org.opengroup.osdu.core.obm.core.ObmDriverRuntimeException;
-import org.opengroup.osdu.core.obm.core.model.Blob;
+import org.opengroup.osdu.core.obm.core.model.ObmBlob;
 import org.opengroup.osdu.core.obm.core.persistence.ObmDestination;
 import org.opengroup.osdu.schema.configuration.PartitionPropertyNames;
 import org.opengroup.osdu.schema.configuration.PropertiesConfiguration;
@@ -166,13 +166,13 @@ public class ObmSchemaStore implements ISchemaStore {
     filePath = filePath + SchemaConstants.JSON_EXTENSION;
     String bucketName = getSchemaBucketName(dataPartitionId);
 
-    Blob blob = Blob.builder()
+    ObmBlob blob = ObmBlob.builder()
         .bucket(bucketName)
         .name(filePath)
         .build();
 
     try {
-      Blob blobFromStorage = driver.createAndGetBlob(blob, content.getBytes(StandardCharsets.UTF_8),
+      ObmBlob blobFromStorage = driver.createAndGetBlob(blob, content.getBytes(StandardCharsets.UTF_8),
           getDestination(this.headers.getPartitionId()));
       log.info(SchemaConstants.SCHEMA_CREATED);
       return blobFromStorage.getName();
@@ -194,13 +194,13 @@ public class ObmSchemaStore implements ISchemaStore {
     filePath = filePath + SchemaConstants.JSON_EXTENSION;
     String systemSchemaBucketName = getSystemSchemaBucketName();
 
-    Blob blob = Blob.builder()
+    ObmBlob blob = ObmBlob.builder()
         .bucket(systemSchemaBucketName)
         .name(filePath)
         .build();
 
     try {
-      Blob blobFromStorage = driver.createAndGetBlob(blob, content.getBytes(StandardCharsets.UTF_8),
+      ObmBlob blobFromStorage = driver.createAndGetBlob(blob, content.getBytes(StandardCharsets.UTF_8),
           getSystemDestination());
       log.info(SchemaConstants.SCHEMA_CREATED);
       return blobFromStorage.getName();

@@ -40,6 +40,8 @@ variables:
   AWS_DEPLOY_TARGET: TF
   AWS_EKS_DEPLOYMENT_NAME: os-schema
 
+  CIMPL_OPENAPI_YAML_ROUTE: /api/schema-service/v1/api-docs.yaml
+
   ACCEPTANCE_TEST_DIR: "schema-acceptance-test"
 
 include:

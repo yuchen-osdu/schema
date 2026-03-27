@@ -18,6 +18,7 @@ data:
   otelJavaagentEnabled: "true"
   otelExporterEndpoint: "http://opentelemetry-collector.opentelemetry.svc.cluster.local:4318"
   #Deployments
+  bootstrapEnabled: true
   requestsCpu: "220m"
   requestsMemory: "1.5G"
   limitsCpu: "1"

@@ -12,6 +12,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+{{- if eq (toString .Values.data.bootstrapEnabled) "true" }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -21,4 +22,5 @@ metadata:
   namespace: {{ .Release.Namespace | quote }}
 data:
   SCHEMA_URL: {{ .Values.data.schemaHost | quote }}
-  ENTITLEMENTS_HOST: {{ .Values.data.entitlementsHost | quote }} 
+  ENTITLEMENTS_HOST: {{ .Values.data.entitlementsHost | quote }}
+{{- end }}

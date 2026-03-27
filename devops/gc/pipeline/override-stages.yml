@@ -6,6 +6,66 @@ variables:
   GC_HELM_TIMEOUT: "--timeout 15m"
   HOST: "https://${GC_DOMAIN}"
 
+gc-deploy:
+  variables:
+    GC_HELM_SETS: "--set data.bootstrapEnabled=false"
+    GC_ENABLE_BOOTSTRAP: "false"
+
+gc-bootstrap:
+  extends: .gc-variables
+  stage: bootstrap
+  image: gcr.io/google.com/cloudsdktool/cloud-sdk:alpine
+  tags: ["osdu-small"]
+  needs: ["gc-deploy"]
+  retry: 1
+  environment:
+    name: Google_Cloud
+  id_tokens:
+    GITLAB_OIDC_TOKEN:
+      aud: https://iam.googleapis.com/projects/${GC_PROJECT_NUMBER}/locations/global/workloadIdentityPools/${GC_POOL_ID}/providers/${GC_PROVIDER_ID}
+  variables:
+    GC_SA_EMAIL: $GC_SA_SCHEMA_BOOTSTRAP
+    SCHEMA_URL: "https://${GC_DOMAIN}"
+    ENTITLEMENTS_HOST: "https://${GC_DOMAIN}"
+  script:
+    - !reference [.gc_obtain_credentials, script]
+    - apk update && apk add jq bash python3 py3-pip
+    - python3 -m venv .venv
+    - source .venv/bin/activate
+    - pip3 install -r deployments/scripts/requirements.txt
+    - pip3 install -r deployments/scripts/gc-deployment-requirements.txt
+    - export FEDERATED_TOKEN=$(gcloud auth print-access-token)
+    - |
+      export BEARER_TOKEN=$(curl --fail \
+        "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${GC_SA_EMAIL}:generateIdToken" \
+        -H "Accept: application/json" \
+        -H "Content-Type: application/json" \
+        -H "Authorization: Bearer ${FEDERATED_TOKEN}" \
+        --data '{
+          "audience": "'"${SCHEMA_URL}"'",
+          "includeEmail": true}' | jq -r '.token')
+    - export DATA_PARTITION="system"
+    - export APP_KEY=""
+    - python3 deployments/scripts/DeploySharedSchemas.py -e -u "${SCHEMA_URL}"/api/schema-service/v1/schemas/system
+  rules:
+    - if: '$GC == "1"'
+      when: on_success
+
+gc-deploy-and-bootstrap:
+  extends: gc-deploy
+  stage: bootstrap
+  needs: ["gc-bootstrap"]
+  variables:
+    GC_HELM_SETS: "--set data.bootstrapEnabled=true"
+    GC_ENABLE_BOOTSTRAP: "true"
+  rules:
+    - if: '$GC == "1"'
+      when: on_success
+
+# Ensure acceptance tests wait for the full deployment with bootstrap
+gc-acceptance-test:
+  needs: ["gc-deploy-and-bootstrap"]
+
 gc-dev2-test:
   variables:
     GC_TEST_SUBDIR: testing/schema-test-core

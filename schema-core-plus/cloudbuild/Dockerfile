@@ -23,5 +23,5 @@ CMD java --add-opens java.base/java.lang=ALL-UNNAMED \
          -Dlog4j.formatMsgNoLookups=true \
          -Dloader.path=plugins/ \
          -Dloader.main=org.opengroup.osdu.schema.CorePlusSchemaApplication \
-         -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+         -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 \
          -jar /app/schema.jar

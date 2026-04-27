@@ -82,7 +82,7 @@ Once the above Prerequisite are done, we can follow the below steps to run the s
 Download pluggable OSDU Drivers:
 ```bash
     - mvn dependency:copy -DrepoUrl=$OSM_PACKAGE_REGISTRY_URL -Dartifact="org.opengroup.osdu:os-osm-postgres:$OSM_VERSION:jar:plugin" -Dtransitive=false -DoutputDirectory="./tmp"
-    - mvn dependency:copy -DrepoUrl=$OBM_PACKAGE_REGISTRY_URL -Dartifact="org.opengroup.osdu:os-obm-minio:$OBM_VERSION:jar:plugin" -Dtransitive=false -DoutputDirectory="./tmp"
+    - mvn dependency:copy -DrepoUrl=$OBM_PACKAGE_REGISTRY_URL -Dartifact="org.opengroup.osdu:os-obm-s3:$OBM_VERSION:jar:plugin" -Dtransitive=false -DoutputDirectory="./tmp"
     - mvn dependency:copy -DrepoUrl=$OQM_PACKAGE_REGISRTY_URL -Dartifact="org.opengroup.osdu:os-oqm-rabbitmq:$OQM_VERSION:jar:plugin" -Dtransitive=false -DoutputDirectory="./tmp"
 ```
 Select schema-core-plus to run :

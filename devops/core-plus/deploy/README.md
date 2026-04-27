@@ -32,6 +32,7 @@ First you need to set variables in **values.yaml** file using any code editor. S
 |------|-------------|------|---------|---------|
 **global.domain** | your domain for the external endpoint, ex `example.com` | string | - | yes
 **global.limitsEnabled** | whether CPU and memory limits are enabled | boolean | true | yes
+**global.dataPartitionId** | data partition ID (used as shared tenant name) | string | - | yes
 
 ### Configmap variables
 
@@ -39,9 +40,12 @@ First you need to set variables in **values.yaml** file using any code editor. S
 |------|-------------|------|---------|---------|
 **data.entitlementsHost** | entitlements host | string | "http://entitlements" | yes
 **data.javaOptions** | java options | string | "-Xms512M -Xmx1024M -XX:+UseG1GC -XX:+UseStringDeduplication -XX:InitiatingHeapOccupancyPercent=45" | yes
-**data.logLevel** | logging level | string | INFO | yes
+**data.logLevel** | logging level | string | ERROR | yes
 **data.partitionHost** | partition host | string | "http://partition" | yes
 **data.schemaTopicName** | topic for schema changes events | string | "schema-changed" | yes
+**data.schemaChangedMessagingEnabled** | whether schema changed messaging is enabled | boolean | true | yes
+**data.enableCleanup** | whether schema cleanup is enabled | boolean | false | yes
+**data.schemaHost** | schema host | string | "http://schema" | yes
 
 ### Deployment variables
 
@@ -50,7 +54,7 @@ First you need to set variables in **values.yaml** file using any code editor. S
 **data.requestsCpu** | amount of requested CPU | string | 220m | yes
 **data.requestsMemory** | amount of requested memory| string | 1.7G | yes
 **data.limitsCpu** | CPU limit | string | 1 | only if `global.limitsEnabled` is true
-**data.limitsMemory** | memory limit | string | 1.5G | only if `global.limitsEnabled` is true
+**data.limitsMemory** | memory limit | string | 2.5G | only if `global.limitsEnabled` is true
 **data.bootstrapImage** | bootstrap image | string | - | yes
 **data.bootstrapServiceAccountName** | bootstrap service account name | string | - | yes
 **data.image** | service image | string | - | yes
@@ -65,20 +69,10 @@ First you need to set variables in **values.yaml** file using any code editor. S
 **conf.bootstrapSecretName** | secret for bootstrap | string | `datafier-secret` | yes
 **conf.configmap** | configmap to be used | string | `schema-config` | yes
 **conf.minioSecretName** | secret for minio | string | `schema-minio-secret` | yes
+**conf.schemaS3SecretName** | secret for SeaweedFS/S3 schema storage (prefixed with `global.dataPartitionId`) | string | `schema-seaweedfs-secret` | yes
 **conf.postgresSecretName** | secret for postgres | string | `schema-postgres-secret` | yes
 **conf.rabbitmqSecretName** | secret for rabbitmq | string | `rabbitmq-secret` | yes
-
-<!-- ### Datastore cleanup and bootstrap schemas variables
-
-> Datastore cleanup is used for cleaning Datastore Schema Entities if they are not present in Schema bucket
-
-| Name | Description | Type | Default |Required |
-|------|-------------|------|---------|---------|
-**data.datastoreKind** | Datastore Kind for Schema | string | "system_schema_osm" | yes
-**data.datastoreNamespace** | Datastore Namespace for Schema | string | "dataecosystem" | yes
-**data.enableCleanup** | whether cleanup is enabled | boolean | false | yes
-**data.schemaBucket** | name of the bucket with schemas | string | - | yes
-**data.schemaHost** | schema host | string | "http://schema" | yes -->
+**conf.replicas** | number of deployment replicas | integer | 1 | yes
 
 ### Istio variables
 

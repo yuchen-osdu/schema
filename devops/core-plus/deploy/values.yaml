@@ -29,6 +29,7 @@ conf:
   bootstrapSecretName: "datafier-secret"
   configmap: "schema-config"
   minioSecretName: "schema-minio-secret"
+  schemaS3SecretName: "schema-seaweedfs-secret"
   postgresSecretName: "schema-postgres-secret"
   rabbitmqSecretName: "rabbitmq-secret"
   replicas: 1

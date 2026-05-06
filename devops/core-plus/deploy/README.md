@@ -69,7 +69,7 @@ First you need to set variables in **values.yaml** file using any code editor. S
 **conf.bootstrapSecretName** | secret for bootstrap | string | `datafier-secret` | yes
 **conf.configmap** | configmap to be used | string | `schema-config` | yes
 **conf.minioSecretName** | secret for minio | string | `schema-minio-secret` | yes
-**conf.schemaS3SecretName** | secret for SeaweedFS/S3 schema storage (prefixed with `global.dataPartitionId`) | string | `schema-seaweedfs-secret` | yes
+**conf.s3SecretName** | secret for SeaweedFS/S3 schema storage (prefixed with `global.dataPartitionId`) | string | `schema-seaweedfs-secret` | yes
 **conf.postgresSecretName** | secret for postgres | string | `schema-postgres-secret` | yes
 **conf.rabbitmqSecretName** | secret for rabbitmq | string | `rabbitmq-secret` | yes
 **conf.replicas** | number of deployment replicas | integer | 1 | yes

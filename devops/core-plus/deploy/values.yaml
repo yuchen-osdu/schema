@@ -1,7 +1,6 @@
 global:
-  domain: "seaweedfs.dev1.osdu-cimpl.opengroup.org"
+  domain: ""
   limitsEnabled: true
-  onPremEnabled: false
   dataPartitionId: ""
 
 data:

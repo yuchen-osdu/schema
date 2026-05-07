@@ -11,7 +11,7 @@ Must have:
 | `SPRING_PROFILES_ACTIVE`                  | ex `anthos`   | Spring profile that activate default configuration for Google Cloud environment                                                                                                                                                                                                                            | false      | -      |
 | `SHARED_TENANT_NAME`                      | ex `anthos`   | Shared account id                                                                                                                                                                                                                                                                                          | no         | -      |
 | `<POSTGRES_PASSWORD_ENV_VARIABLE_NAME>`   | ex `password` | Potgres user, name of that variable not defined at the service level, the name will be received through partition service. Each tenant can have it's own ENV name value, and it must be present in ENV of Indexer service, see [Partition properties set](#properties-set-in-partition-service)            | yes        | -      |
-| `<MINIO_SECRETKEY_ENV_VARIABLE_NAME>`     | ex `password` | Minio password, name of that variable not defined at the service level, the name will be received through partition service. Each tenant can have it's own ENV name value, and it must be present in ENV of Indexer service, see [Partition properties set](#properties-set-in-partition-service)          | yes        | -      |
+| `<SEAWEEDFS_ACCESS_KEY_ENV_VARIABLE_NAME>`| ex `password` | SeaweedFS password, name of that variable not defined at the service level, the name will be received through partition service. Each tenant can have it's own ENV name value, and it must be present in ENV of Indexer service, see [Partition properties set](#properties-set-in-partition-service)      | yes        | -      |
 | `<AMQP_PASSWORD_ENV_VARIABLE_NAME>`       | ex `password` | RabbitMQ password, name of that variable not defined at the service level, the name will be received through partition service. Each tenant can have it's own ENV name value, and it must be present in ENV of Indexer service, see [Partition properties set](#properties-set-in-partition-service)       | yes        | -      |
 | `<AMQP_ADMIN_PASSWORD_ENV_VARIABLE_NAME>` | ex `password` | RabbitMQ Admin password, name of that variable not defined at the service level, the name will be received through partition service. Each tenant can have it's own ENV name value, and it must be present in ENV of Indexer service, see [Partition properties set](#properties-set-in-partition-service) | yes        | -      |
 
@@ -414,24 +414,25 @@ Schema service responsible for publishing only.
 Consumer side `schema-changed` topic configuration located in
 [Indexer Baremetal Rabbit documentation](https://community.opengroup.org/osdu/platform/system/indexer-service/-/blob/master/provider/indexer-gc/docs/baremetal/README.md#exchanges-and-queues-configuration)
 
-## Minio configuration
+## SeaweedFS configuration
 
 ### Properties set in Partition service
 
-**prefix:** `obm.minio`
+**prefix:** `obm.s3`
 
 It can be overridden by:
 
-- through the Spring Boot property `obm.minio.partition-properties-prefix`
-- environment variable `OBM_MINIO_PARTITION_PROPERTIES_PREFIX`
+- through the Spring Boot property `obm.s3.partition-properties-prefix`
+- environment variable `OBM_S3_PARTITION_PROPERTIES_PREFIX`
 
 **Propertyset** (for two types of connection: messaging and admin operations):
 
 | Property            | Description |
 |---------------------|-------------|
-| obm.minio.endpoint  | - url       |
-| obm.minio.accessKey | - username  |
-| obm.minio.secretKey | - password  |
+| obm.s3.endpoint     | - url       |
+| obm.s3.accessKey    | -username   |
+| obm.s3.secretKey    | -password   |
+| obm.s3.region       | -region     |
 
 <details><summary>Example of a single tenant definition</summary>
 
@@ -439,17 +440,21 @@ It can be overridden by:
 
 curl -L -X PATCH 'https://dev.osdu.club/api/partition/v1/partitions/opendes' -H 'data-partition-id: opendes' -H 'Authorization: Bearer ...' -H 'Content-Type: application/json' --data-raw '{
   "properties": {
-    "obm.minio.endpoint": {
+    "obm.s3.endpoint": {
       "sensitive": false,
-      "value": "localhost"
+      "value": "${DATA_PARTITION_ID_VALUE}-SEAWEEDFS_ENDPOINT"
     },
-    "obm.minio.accessKey": {
-      "sensitive": false,
-      "value": "minioadmin"
+    "obm.s3.accessKey": {
+      "sensitive": true,
+      "value": "${DATA_PARTITION_ID_VALUE}-SEAWEEDFS_ACCESS_KEY"
     },
-    "obm.minio.secretKey": {
+    "obm.s3.secretKey": {
+      "sensitive": true,
+      "value": "${DATA_PARTITION_ID_VALUE}-SEAWEEDFS_SECRET_KEY"
+    }
+    "obm.s3.region": {
       "sensitive": false,
-      "value": "<MINIO_SECRETKEY_ENV_VARIABLE_NAME>" <- (Not actual value, just name of env variable)
+      "value": "us-east-1"
     }
   }
 }'
@@ -462,7 +467,7 @@ curl -L -X PATCH 'https://dev.osdu.club/api/partition/v1/partitions/opendes' -H 
 
 #### Used Technology
 
-MinIO (or any other supported by OBM)
+SeaweedFS (or any other supported by OBM)
 
 #### Per-tenant buckets configuration
 

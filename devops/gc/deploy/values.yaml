@@ -5,6 +5,7 @@ global:
   logLevel: "ERROR"
   tier: ""
   autoscalingMode: "cpu"
+  otelJavaagentEnabled: "true"
 
 data:
   #Configmaps
@@ -15,7 +16,6 @@ data:
   schemaTopicName: "schema-changed"
   schemaChangedMessagingEnabled: true
   schemaHost: "http://schema"
-  otelJavaagentEnabled: "true"
   otelExporterEndpoint: "http://opentelemetry-collector.opentelemetry.svc.cluster.local:4318"
   #Deployments
   bootstrapEnabled: true

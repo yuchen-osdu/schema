@@ -66,13 +66,6 @@ gc-deploy-and-bootstrap:
 gc-acceptance-test:
   needs: ["gc-deploy-and-bootstrap"]
 
-gc-dev2-test:
-  variables:
-    GC_TEST_SUBDIR: testing/schema-test-core
-    VENDOR: gcp
-  script:
-    - $MAVEN_BUILD . test-results.log verify -q -f $GC_TEST_SUBDIR/pom.xml
-
 gc-containerize-bootstrap-gitlab:
   tags: ["osdu-medium"]
 

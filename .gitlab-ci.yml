@@ -8,14 +8,6 @@ variables:
   GCP_DEPLOY_ENV: p4d
   GCP_DOMAIN: cloud.slb-ds.com
 
-  IBM_BUILD_SUBDIR: provider/schema-ibm
-  IBM_INT_TEST_SUBDIR: testing/schema-test-core
-  IBM_TEST_CMD: verify
-  IBM_DEPLOYMENTS_SUBDIR: deployments/scripts/ibm
-  IBM_DEPLOYMENTS_SCRIPTS_SUBDIR: deployments/scripts
-  IBM_HELM_CONFIG_PATH: devops/ibm/ibm-schema-config
-  IBM_HELM_DEPLOY_PATH: devops/ibm/ibm-schema-deploy
-
   AZURE_SERVICE: schema
   AZURE_BUILD_SUBDIR: provider/schema-azure
   AZURE_TEST_SUBDIR: testing/schema-test-core
@@ -67,9 +59,6 @@ include:
     file: "cloud-providers/aws-maven.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/ibm-java-git.yml"
-
-  - project: "osdu/platform/ci-cd-pipelines"
     file: "scanners/gitlab-ultimate.yml"
 
   - project: "osdu/platform/ci-cd-pipelines"
@@ -92,17 +81,12 @@ include:
   - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/gc-one-pipeline.yml"
 
-  - project: "osdu/platform/ci-cd-pipelines"
-    file: "cloud-providers/ibm-one-pipeline.yml"
-
   - local: "devops/gc/pipeline/override-stages.yml"
 
   - local: "/devops/azure/gitlab-bootstrap.yml"
   - local: "/devops/azure/override-stages.yml"
 
   - local: "/devops/aws/bootstrap.yaml"
-  - local: "/devops/ibm/bootstrap.yaml"
-
 download_plugins:
   image: maven:3.8.3-openjdk-17-slim
   stage: build

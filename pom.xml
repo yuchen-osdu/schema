@@ -47,7 +47,7 @@
 
 		<!-- Project Versions-->
 		<json-smart.version>2.5.2</json-smart.version>
-		<openapi.version>2.5.0</openapi.version>
+		<openapi.version>2.8.8</openapi.version>
 
 		<!-- Plugin Versions -->
 		<spring-boot-maven-plugin.version>3.2.2</spring-boot-maven-plugin.version>

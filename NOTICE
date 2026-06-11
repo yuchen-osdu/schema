@@ -326,7 +326,6 @@ BSD-2-Clause
 The following software have components provided under the terms of this license:
 
 - Apache Log4j Core (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core)
-- Hamcrest Core (from http://hamcrest.org/, http://hamcrest.org/JavaHamcrest/, https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core)
 - HdrHistogram (from http://hdrhistogram.github.io/HdrHistogram/)
 - Jodd Util (from https://util.jodd.org/)
 - LatencyUtils (from http://latencyutils.github.io/LatencyUtils/)
@@ -668,7 +667,6 @@ public-domain
 The following software have components provided under the terms of this license:
 
 - AOP alliance (from http://aopalliance.sourceforge.net)
-- JBoss Logging 3 (from http://www.jboss.org, https://www.jboss.org/)
 - JSON in Java (from https://github.com/douglascrockford/JSON-java)
 
 ========================================================================

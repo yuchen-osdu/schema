@@ -81,6 +81,9 @@ include:
   - project: "osdu/platform/ci-cd-pipelines"
     file: "cloud-providers/gc-one-pipeline.yml"
 
+  - project: "osdu/platform/ci-cd-pipelines"
+    file: "reporting/schemathesis.yml"
+
   - local: "devops/gc/pipeline/override-stages.yml"
 
   - local: "/devops/azure/gitlab-bootstrap.yml"
@@ -115,3 +118,6 @@ download_plugins:
 
 aws-test-java:
   image: $CI_REGISTRY/osdu/platform/deployment-and-operations/base-containers-aws/aws-maven/aws-maven:v2.0
+
+schemathesis-tests:
+  extends: .schemathesis-tests-template

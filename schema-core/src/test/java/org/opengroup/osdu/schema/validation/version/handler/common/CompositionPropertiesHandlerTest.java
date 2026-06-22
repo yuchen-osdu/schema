@@ -1,7 +1,7 @@
 package org.opengroup.osdu.schema.validation.version.handler.common;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,10 +9,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
@@ -30,12 +30,16 @@ import org.opengroup.osdu.schema.validation.version.handler.minor.CompositionPro
 import org.opengroup.osdu.schema.validation.version.model.SchemaBreakingChanges;
 import org.opengroup.osdu.schema.validation.version.model.SchemaHandlerVO;
 import org.opengroup.osdu.schema.validation.version.model.SchemaPatch;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class CompositionPropertiesHandlerTest {
 	
 	@InjectMocks
@@ -73,7 +77,7 @@ public class CompositionPropertiesHandlerTest {
 		
 		
 		List<SchemaPatch> schemaPatchList = TestUtility.findSchemaPatch(schemaHandlerVO.getSourceSchema(), schemaHandlerVO.getTargetSchema());
-		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 		Mockito.doReturn(true).when(schemaUtil).isValidSchemaVersionChange("osdu:wks:AbstractCommonResources:2.1.1","osdu:wks:AbstractCommonResources:2.1.1",SchemaValidationType.MINOR);
 		
 		
@@ -82,7 +86,7 @@ public class CompositionPropertiesHandlerTest {
 		}
 		
 		assertTrue(schemaBreakingChanges.size() == 0);
-		Mockito.verify(schemaValidationManager, Mockito.atMost(2)).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.verify(schemaValidationManager, Mockito.atMost(2)).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 
 	}
 	
@@ -102,7 +106,7 @@ public class CompositionPropertiesHandlerTest {
 		
 		List<SchemaPatch> schemaPatchList = TestUtility.findSchemaPatch(schemaHandlerVO.getSourceSchema(), schemaHandlerVO.getTargetSchema());
 		
-		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 		Mockito.doReturn(true).when(schemaUtil).isValidSchemaVersionChange("osdu:wks:AbstractCommonResources:2.1.1","osdu:wks:AbstractCommonResources:2.1.1",SchemaValidationType.MINOR);
 		
 		for(SchemaPatch patch : schemaPatchList) {
@@ -111,7 +115,7 @@ public class CompositionPropertiesHandlerTest {
 		
 		assertTrue(schemaBreakingChanges.size() == 0);
 		assertTrue(schemaHandlerVO.getChangedRefIds().get("osdu:wks:AbstractCommonResources:2.1.1").equals("osdu:wks:AbstractCommonResources:2.1.1"));
-		Mockito.verify(schemaValidationManager, Mockito.atMost(2)).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.verify(schemaValidationManager, Mockito.atMost(2)).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 
 	}
 	
@@ -131,7 +135,7 @@ public class CompositionPropertiesHandlerTest {
 		
 		List<SchemaPatch> schemaPatchList = TestUtility.findSchemaPatch(schemaHandlerVO.getSourceSchema(), schemaHandlerVO.getTargetSchema());
 		
-		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 		Mockito.doReturn(true).when(schemaUtil).isValidSchemaVersionChange("osdu:wks:AbstractCommonResources:2.1.1","osdu:wks:AbstractCommonResources:2.1.1",SchemaValidationType.MINOR);
 		
 		for(SchemaPatch patch : schemaPatchList) {
@@ -140,7 +144,7 @@ public class CompositionPropertiesHandlerTest {
 		
 		assertTrue(schemaBreakingChanges.size() == 0);
 		assertTrue(schemaHandlerVO.getChangedRefIds().get("osdu:wks:AbstractCommonResources:2.1.1").equals("osdu:wks:AbstractCommonResources:2.1.1"));
-		Mockito.verify(schemaValidationManager, Mockito.atLeast(2)).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.verify(schemaValidationManager, Mockito.atLeast(2)).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 
 	}
 	
@@ -160,7 +164,7 @@ public class CompositionPropertiesHandlerTest {
 		
 		List<SchemaPatch> schemaPatchList = TestUtility.findSchemaPatch(schemaHandlerVO.getSourceSchema(), schemaHandlerVO.getTargetSchema());
 		
-		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 		Mockito.doReturn(true).when(schemaUtil).isValidSchemaVersionChange("osdu:wks:AbstractCommonResources:2.1.1","osdu:wks:AbstractCommonResources:2.2.1",SchemaValidationType.MINOR);
 		
 		for(SchemaPatch patch : schemaPatchList) {
@@ -169,7 +173,7 @@ public class CompositionPropertiesHandlerTest {
 		
 		assertTrue(schemaBreakingChanges.size() == 0);
 		assertTrue(schemaHandlerVO.getChangedRefIds().get("osdu:wks:AbstractCommonResources:2.1.1").equals("osdu:wks:AbstractCommonResources:2.2.1"));
-		Mockito.verify(schemaValidationManager, Mockito.atLeast(2)).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.verify(schemaValidationManager, Mockito.atLeast(2)).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 
 	}
 	
@@ -189,7 +193,7 @@ public class CompositionPropertiesHandlerTest {
 		
 		List<SchemaPatch> schemaPatchList = TestUtility.findSchemaPatch(schemaHandlerVO.getSourceSchema(), schemaHandlerVO.getTargetSchema());
 		
-		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 		Mockito.doReturn(true).when(schemaUtil).isValidSchemaVersionChange("osdu:wks:AbstractCommonResources:2.1.1","osdu:wks:AbstractCommonResources:2.1.2",SchemaValidationType.MINOR);
 		
 		for(SchemaPatch patch : schemaPatchList) {
@@ -198,7 +202,7 @@ public class CompositionPropertiesHandlerTest {
 		
 		assertTrue(schemaBreakingChanges.size() == 0);
 		assertTrue(schemaHandlerVO.getChangedRefIds().get("osdu:wks:AbstractCommonResources:2.1.1").equals("osdu:wks:AbstractCommonResources:2.1.2"));
-		Mockito.verify(schemaValidationManager, Mockito.atLeast(2)).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.verify(schemaValidationManager, Mockito.atLeast(2)).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 
 	}
 	
@@ -218,7 +222,7 @@ public class CompositionPropertiesHandlerTest {
 		
 		List<SchemaPatch> schemaPatchList = TestUtility.findSchemaPatch(schemaHandlerVO.getSourceSchema(), schemaHandlerVO.getTargetSchema());
 		
-		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 		Mockito.doReturn(true).when(schemaUtil).isValidSchemaVersionChange("osdu:wks:AbstractCommonResources:2.1.1","osdu:wks:AbstractCommonResources:2.1.2",SchemaValidationType.PATCH);
 		
 		for(SchemaPatch patch : schemaPatchList) {
@@ -227,7 +231,7 @@ public class CompositionPropertiesHandlerTest {
 		
 		assertTrue(schemaBreakingChanges.size() == 0);
 		assertTrue(schemaHandlerVO.getChangedRefIds().get("osdu:wks:AbstractCommonResources:2.1.1").equals("osdu:wks:AbstractCommonResources:2.1.2"));
-		Mockito.verify(schemaValidationManager, Mockito.atLeast(2)).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.verify(schemaValidationManager, Mockito.atLeast(2)).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 
 	}
 	
@@ -257,7 +261,7 @@ public class CompositionPropertiesHandlerTest {
 			public Object answer(InvocationOnMock invocation) throws Throwable {
 				schemaBreakingChanges.add(new SchemaBreakingChanges(schemaPatchList.get(0), "breaking changes found"));
 				return null;
-			}}).when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+			}}).when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 		Mockito.doReturn(true).when(schemaUtil).isValidSchemaVersionChange("osdu:wks:AbstractCommonResources:2.1.1","osdu:wks:AbstractCommonResources:2.1.1",SchemaValidationType.MINOR);
 		
 		for(SchemaPatch patch : schemaPatchList) {
@@ -265,7 +269,7 @@ public class CompositionPropertiesHandlerTest {
 		}
 		
 		assertTrue(schemaBreakingChanges.size() > 0);
-		Mockito.verify(schemaValidationManager, Mockito.atLeast(2)).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.verify(schemaValidationManager, Mockito.atLeast(2)).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 
 	}
 	
@@ -284,7 +288,7 @@ public class CompositionPropertiesHandlerTest {
 		schemaHandlerVO.setSourceDefinition(sourceDef);
 		
 		List<SchemaPatch> schemaPatchList = TestUtility.findSchemaPatch(schemaHandlerVO.getSourceSchema(), schemaHandlerVO.getTargetSchema());
-		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 		Mockito.doReturn(true).when(schemaUtil).isValidSchemaVersionChange("osdu:wks:AbstractCommonResources:2.1.1","osdu:wks:AbstractCommonResources:2.1.1",SchemaValidationType.MINOR);
 		
 		for(SchemaPatch patch : schemaPatchList) {
@@ -292,7 +296,7 @@ public class CompositionPropertiesHandlerTest {
 		}
 		
 		assertTrue(schemaBreakingChanges.size() == 0);
-		Mockito.verify(schemaValidationManager, Mockito.atLeast(2)).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.verify(schemaValidationManager, Mockito.atLeast(2)).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 
 	}
 	
@@ -313,7 +317,7 @@ public class CompositionPropertiesHandlerTest {
 		
 		List<SchemaPatch> schemaPatchList = TestUtility.findSchemaPatch(schemaHandlerVO.getSourceSchema(), schemaHandlerVO.getTargetSchema());
 		
-		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 		Mockito.doReturn(false).when(schemaUtil).isValidSchemaVersionChange("osdu:wks:AbstractCommonResources:2.1.1","osdu:wks:AbstractCommonResources:2.2.1",SchemaValidationType.PATCH);
 		
 		for(SchemaPatch patch : schemaPatchList) {
@@ -340,7 +344,7 @@ public class CompositionPropertiesHandlerTest {
 		
 		List<SchemaPatch> schemaPatchList = TestUtility.findSchemaPatch(schemaHandlerVO.getSourceSchema(), schemaHandlerVO.getTargetSchema());
 		
-		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 		Mockito.doReturn(false).when(schemaUtil).isValidSchemaVersionChange("osdu:wks:AbstractCommonResources:2.1.1","osdu:wks:AbstractCommonResources:2.0.1",SchemaValidationType.PATCH);
 		
 		for(SchemaPatch patch : schemaPatchList) {
@@ -366,7 +370,7 @@ public class CompositionPropertiesHandlerTest {
 		
 		List<SchemaPatch> schemaPatchList = TestUtility.findSchemaPatch(schemaHandlerVO.getSourceSchema(), schemaHandlerVO.getTargetSchema());
 		
-		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 		Mockito.doReturn(false).when(schemaUtil).isValidSchemaVersionChange("osdu:wks:AbstractCommonResources:2.1.1","osdu:wks:AbstractCommonResources:2.1.0",SchemaValidationType.PATCH);
 		
 		for(SchemaPatch patch : schemaPatchList) {
@@ -392,7 +396,7 @@ public class CompositionPropertiesHandlerTest {
 		
 		List<SchemaPatch> schemaPatchList = TestUtility.findSchemaPatch(schemaHandlerVO.getSourceSchema(), schemaHandlerVO.getTargetSchema());
 		
-		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), Mockito.anyListOf(SchemaBreakingChanges.class));
+		Mockito.doNothing().when(schemaValidationManager).initiateValidationProcess(Mockito.any(SchemaHandlerVO.class), ArgumentMatchers.anyList());
 		Mockito.doReturn(false).when(schemaUtil).isValidSchemaVersionChange("osdu:wks:AbstractCommonResources:2.1.1","osdu:wks:AbstractCommonResources:3.2.1",SchemaValidationType.PATCH);
 		
 		for(SchemaPatch patch : schemaPatchList) {

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -69,7 +70,19 @@ public class SchemaController {
     @Operation(summary = "${schemaApi.getSchema.summary}", description = "${schemaApi.getSchema.description}",
             security = {@SecurityRequirement(name = "Authorization")}, tags = { "schema-api" })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Search results matching criteria", content = { @Content(schema = @Schema(implementation = Object.class, example = GET_SCHEMA_200_RESPONSE)) }),
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Schema retrieved successfully",
+                    content = {
+                            @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(type = "object"),
+                                    examples = {
+                                            @ExampleObject(value = GET_SCHEMA_200_RESPONSE)
+                                    }
+                            )
+                    }
+            ),
             @ApiResponse(responseCode = "400", description = "Bad user input. Mandatory fields missing or unacceptable value passed to API",  content = {@Content(schema = @Schema(implementation = AppError.class ))}),
             @ApiResponse(responseCode = "401", description = "Unauthorized",  content = {@Content(schema = @Schema(implementation = AppError.class ))}),
             @ApiResponse(responseCode = "403", description = "User not authorized to perform the action.",  content = {@Content(schema = @Schema(implementation = AppError.class ))}),
@@ -101,27 +114,27 @@ public class SchemaController {
     @GetMapping()
     @PreAuthorize("@authorizationFilter.hasRole('" + SchemaConstants.ENTITLEMENT_SERVICE_GROUP_VIEWERS + "')")
     public ResponseEntity<SchemaInfoResponse> getSchemaInfoList(
-            @Parameter(description = "pass an optional string to search for a specific authority", example = "osdu", schema = @Schema(defaultValue = "*"))
+            @Parameter(description = "pass an optional string to search for a specific authority", example = "osdu")
             @RequestParam(required = false, name = "authority") String authority,
-            @Parameter(description = "pass an optional string to search for a specific source", example = "wks", schema = @Schema(defaultValue = "*"))
+            @Parameter(description = "pass an optional string to search for a specific source", example = "wks")
             @RequestParam(required = false, name = "source") String source,
-            @Parameter(description = "pass an optional string to search for a specific entityType", example = "wellbore", schema = @Schema(defaultValue = "*"))
+            @Parameter(description = "pass an optional string to search for a specific entityType", example = "wellbore")
             @RequestParam(required = false, name = "entityType") String entityType,
-            @Parameter(description = "pass an optional string to search for a specific schemaVersionMajor", example = "1", schema = @Schema(defaultValue = "*"))
+            @Parameter(description = "pass an optional string to search for a specific schemaVersionMajor", example = "1")
             @RequestParam(required = false, name = "schemaVersionMajor") Long schemaVersionMajor,
-            @Parameter(description = "pass an optional string to search for a specific schemaVersionMinor", example = "1", schema = @Schema(defaultValue = "*"))
+            @Parameter(description = "pass an optional string to search for a specific schemaVersionMinor", example = "1")
             @RequestParam(required = false, name = "schemaVersionMinor") Long schemaVersionMinor,
-            @Parameter(description = "pass an optional string to search for a specific schemaVersionPatch", example = "0", schema = @Schema(defaultValue = "*"))
+            @Parameter(description = "pass an optional string to search for a specific schemaVersionPatch", example = "0")
             @RequestParam(required = false, name = "schemaVersionPatch") Long schemaVersionPatch,
-            @Parameter(description = "The schema status specification", example = "PUBLISHED", schema = @Schema(defaultValue = "PUBLISHED"))
+            @Parameter(description = "The schema status specification", example = "PUBLISHED", schema = @Schema(type = "string", defaultValue = "PUBLISHED"))
             @RequestParam(required = false, name = "status") String status,
-            @Parameter(description = "The scope or schema visibility specification", example = "INTERNAL", schema = @Schema(defaultValue = "INTERNAL"))
+            @Parameter(description = "The scope or schema visibility specification", example = "INTERNAL", schema = @Schema(type = "string", defaultValue = "INTERNAL"))
             @RequestParam(required = false, name = "scope") String scope,
-            @Parameter(description = "if True, only return the latest version", example = "True", schema = @Schema(defaultValue = "False"))
+            @Parameter(description = "if True, only return the latest version", example = "True", schema = @Schema(type = "boolean", defaultValue = "false"))
             @RequestParam(required = false, name = "latestVersion") Boolean latestVersion,
-            @Parameter(description = "maximum number of schema records to return", example = "10", schema = @Schema(minimum = "0", maximum = "100"))
+            @Parameter(description = "maximum number of schema records to return", example = "10", schema = @Schema(type = "integer", minimum = "0", maximum = "100"))
             @RequestParam(required = false, name = "limit", defaultValue = "100") int limit,
-            @Parameter(description = "number of records to skip for pagination", example = "0", schema = @Schema(minimum = "0"))
+            @Parameter(description = "number of records to skip for pagination", example = "0", schema = @Schema(type = "integer", minimum = "0"))
             @RequestParam(required = false, name = "offset", defaultValue = "0") int offset)
             throws ApplicationException, BadRequestException {
         schemaInfoRequestValidator.validateRequest(schemaInfoRequestValidator.extractQueryParamsFromRequest());

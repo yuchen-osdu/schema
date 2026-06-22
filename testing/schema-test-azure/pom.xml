@@ -15,11 +15,8 @@
 	<description>Azure integration tests for schema service</description>
 	<properties>
 		<os-core-lib-azure.version>2.2.9</os-core-lib-azure.version>
-		<maven.compiler.target>17</maven.compiler.target>
-		<maven.compiler.source>17</maven.compiler.source>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<cucumber-java.version>5.7.0</cucumber-java.version>
-		<lombok.version>1.18.32</lombok.version>
 	</properties>
 
 	<dependencies>
@@ -74,7 +71,6 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>${lombok.version}</version>
 			<scope>provided</scope>
 		</dependency>
     </dependencies>

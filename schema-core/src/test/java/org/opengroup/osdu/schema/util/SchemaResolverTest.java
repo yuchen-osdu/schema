@@ -1,15 +1,14 @@
 package org.opengroup.osdu.schema.util;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -20,9 +19,13 @@ import org.opengroup.osdu.schema.exceptions.NotFoundException;
 import org.opengroup.osdu.schema.service.ISchemaService;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class SchemaResolverTest {
     @InjectMocks
     SchemaResolver schemaResolver;
@@ -32,9 +35,6 @@ public class SchemaResolverTest {
 
     @Mock
     JaxRsDpsLog log;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void testResolveSchema()
@@ -77,14 +77,15 @@ public class SchemaResolverTest {
 
     @Test
     public void testResolveSchema_InvalidExternalPath()
-            throws JSONException, BadRequestException, ApplicationException, NotFoundException, IOException {
+            throws JSONException, ApplicationException, NotFoundException, IOException {
         String orginalSchema = new FileUtils().read("/test_schema/originalSchemaWithInvalidExternalPath.json");
         String referenceSchema = new FileUtils().read("/test_schema/referenceSchemaWithDefinitionBlock.json");
         Mockito.when(schemaService.getSchema("os:wks:anyCrsFeatureCollection.1.0")).thenReturn(referenceSchema);
-        expectedException.expect(BadRequestException.class);
-        expectedException.expectMessage("Invalid Request, https://ggl.json not resolvable");
-        schemaResolver.resolveSchema(orginalSchema);
+        BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> schemaResolver.resolveSchema(orginalSchema));
+        assertEquals("Invalid Request, https://ggl.json not resolvable", exception.getMessage());
     }
+
     
     @Test
     public void testResolveSchema_RefResolutionUnderDefinitions()
@@ -100,49 +101,47 @@ public class SchemaResolverTest {
 
     @Test
     public void testResolveSchema_ExternalPathWithInValidSchema()
-            throws JSONException, BadRequestException, ApplicationException, NotFoundException, IOException {
+            throws JSONException, ApplicationException, NotFoundException, IOException {
         String orginalSchema = new FileUtils().read("/test_schema/originalSchemaWithInvalidExternalPath3.json");
-        expectedException.expect(BadRequestException.class);
-        expectedException.expectMessage("Invalid Request, https://www.google.com not a valid Json schema object");
-        schemaResolver.resolveSchema(orginalSchema);
+        BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> schemaResolver.resolveSchema(orginalSchema));
+        assertEquals("Invalid Request, https://www.google.com not a valid Json schema object", exception.getMessage());
     }
 
     @Test
     public void testResolveSchema_BadRequestExternalPath()
-            throws JSONException, BadRequestException, ApplicationException, NotFoundException, IOException {
+            throws JSONException, ApplicationException, NotFoundException, IOException {
         String orginalSchema = new FileUtils().read("/test_schema/originalSchemaWithInvalidExternalPath2.json");
         String referenceSchema = new FileUtils().read("/test_schema/referenceSchemaWithDefinitionBlock.json");
         Mockito.when(schemaService.getSchema("os:wks:anyCrsFeatureCollection.1.0")).thenReturn(referenceSchema);
-        expectedException.expect(BadRequestException.class);
-        expectedException.expectMessage(
-                "Invalid Request, https://schema-service.endpoints.evd-ddl-us-services.cloud.goog/api/sgsd not resolvable");
-        schemaResolver.resolveSchema(orginalSchema);
+        BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> schemaResolver.resolveSchema(orginalSchema));
+        assertEquals(
+                "Invalid Request, https://schema-service.endpoints.evd-ddl-us-services.cloud.goog/api/sgsd not resolvable",
+                exception.getMessage());
     }
 
     @Test
     public void testResolveSchema_invalidRefSchema()
-            throws JSONException, BadRequestException, ApplicationException, NotFoundException, IOException {
+            throws JSONException, ApplicationException, NotFoundException, IOException {
         Mockito.when(schemaService.getSchema("os:wks:anyCrsFeatureCollection.1.0")).thenThrow(NotFoundException.class);
         String orginalSchema = new FileUtils().read("/test_schema/originalSchema.json");
-        expectedException.expect(BadRequestException.class);
-        expectedException.expectMessage(
-                "Invalid input, os:wks:anyCrsFeatureCollection.1.0 not registered but provided as reference");
-        schemaResolver.resolveSchema(orginalSchema);
-        fail("Should not succeed");
-
+        BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> schemaResolver.resolveSchema(orginalSchema));
+        assertEquals(
+                "Invalid input, os:wks:anyCrsFeatureCollection.1.0 not registered but provided as reference",
+                exception.getMessage());
     }
 
     @Test
     public void testResolveSchema_noDefinitionForRef()
-            throws JSONException, BadRequestException, ApplicationException, NotFoundException, IOException {
+            throws JSONException, ApplicationException, NotFoundException, IOException {
         String originalSchema = new FileUtils().read("/test_schema/originalSchemaWithRefButNoDefinition.json");
         String referenceSchema = new FileUtils().read("/test_schema/referenceSchema.json");
         Mockito.when(schemaService.getSchema("os:wks:anyCrsFeatureCollection.1.0")).thenReturn(referenceSchema);
-        expectedException.expect(BadRequestException.class);
-        expectedException.expectMessage(
-                "Invalid input, no 'person' definition found but provided as a reference");
-        schemaResolver.resolveSchema(originalSchema);
-        fail("Should not succeed");
+        BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> schemaResolver.resolveSchema(originalSchema));
+        assertEquals("Invalid input, no 'person' definition found but provided as a reference", exception.getMessage());
     }
 
     @Test

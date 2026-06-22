@@ -8,9 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -22,12 +21,16 @@ import org.opengroup.osdu.schema.validation.version.handler.SchemaValidationHand
 import org.opengroup.osdu.schema.validation.version.model.SchemaBreakingChanges;
 import org.opengroup.osdu.schema.validation.version.model.SchemaHandlerVO;
 import org.opengroup.osdu.schema.validation.version.model.SchemaPatch;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class RemoveOperationHandlerTest {
 
 	@InjectMocks
@@ -48,7 +51,7 @@ public class RemoveOperationHandlerTest {
 		for(SchemaPatch patch : schemaPatchList) {
 			removeOperationHandler.compare(schemaHandlerVO, patch, schemaBreakingChanges, processedArrayPath);
 			if(schemaBreakingChanges.size() > 0)
-				Assert.fail();
+				Assertions.fail();
 		}
 
 	}
@@ -66,7 +69,7 @@ public class RemoveOperationHandlerTest {
 		for(SchemaPatch patch : schemaPatchList) {
 			removeOperationHandler.compare(schemaHandlerVO, patch, schemaBreakingChanges, processedArrayPath);
 			if(schemaBreakingChanges.size() > 0)
-				Assert.fail();
+				Assertions.fail();
 		}
 
 	}
@@ -84,7 +87,7 @@ public class RemoveOperationHandlerTest {
 		for(SchemaPatch patch : schemaPatchList) {
 			removeOperationHandler.compare(schemaHandlerVO, patch, schemaBreakingChanges, processedArrayPath);
 			if(schemaBreakingChanges.size() > 0)
-				Assert.fail();
+				Assertions.fail();
 		}
 
 	}
@@ -102,7 +105,7 @@ public class RemoveOperationHandlerTest {
 		for(SchemaPatch patch : schemaPatchList) {
 			removeOperationHandler.compare(schemaHandlerVO, patch, schemaBreakingChanges, processedArrayPath);
 			if(schemaBreakingChanges.size() > 0)
-				Assert.fail();
+				Assertions.fail();
 		}
 
 	}
@@ -121,9 +124,9 @@ public class RemoveOperationHandlerTest {
 		for(SchemaPatch patch : schemaPatchList) {
 			removeOperationHandler.compare(schemaHandlerVO, patch, schemaBreakingChanges, processedArrayPath);
 			if(schemaBreakingChanges.size() > 0)
-				Assert.assertTrue(true);
+				Assertions.assertTrue(true);
 			else
-				Assert.fail();
+				Assertions.fail();
 		}
 
 	}
@@ -142,9 +145,9 @@ public class RemoveOperationHandlerTest {
 		for(SchemaPatch patch : schemaPatchList) {
 			removeOperationHandler.compare(schemaHandlerVO, patch, schemaBreakingChanges, processedArrayPath);
 			if(schemaBreakingChanges.size() > 0)
-				Assert.assertTrue(true);
+				Assertions.assertTrue(true);
 			else
-				Assert.fail();
+				Assertions.fail();
 		}
 
 	}
@@ -160,7 +163,7 @@ public class RemoveOperationHandlerTest {
 		for(SchemaPatch patch : schemaPatchList) {
 			removeOperationHandler.compare(schemaHandlerVO, patch, schemaBreakingChanges, processedArrayPath);
 			if(schemaBreakingChanges.size() == 0)
-				Assert.fail();
+				Assertions.fail();
 		}
 	}
 
@@ -219,7 +222,7 @@ public class RemoveOperationHandlerTest {
 				schemaHandlerVO.getTargetSchema());
 
 		// Verify we have the expected patches (remove old version, add new version)
-		Assert.assertTrue("Expected patches for definition version change", schemaPatchList.size() >= 1);
+		Assertions.assertTrue(schemaPatchList.size() >= 1, "Expected patches for definition version change");
 
 		for (SchemaPatch patch : schemaPatchList) {
 			removeOperationHandler.compare(schemaHandlerVO, patch, schemaBreakingChanges, processedArrayPath);
@@ -227,8 +230,8 @@ public class RemoveOperationHandlerTest {
 
 		// With the fix, this should pass (no breaking changes for valid version upgrade)
 		// Without the fix, this would fail because the regex wouldn't match the "/" prefixed path
-		Assert.assertTrue("Valid definition version upgrade should not be flagged as breaking change",
-				schemaBreakingChanges.isEmpty());
+		Assertions.assertTrue(schemaBreakingChanges.isEmpty(),
+				"Valid definition version upgrade should not be flagged as breaking change");
 	}
 
 	private SchemaHandlerVO getMockSchemaHandlerVO(String baseSchemaPath, String newSchemaPath) throws IOException {

@@ -1,14 +1,12 @@
 package org.opengroup.osdu.schema.security;
 
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opengroup.osdu.schema.constants.SchemaConstants.WORKFLOW_SYSTEM_ADMIN;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -19,9 +17,13 @@ import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.schema.exceptions.BadRequestException;
 import org.opengroup.osdu.schema.provider.interfaces.authorization.IAuthorizationServiceForServiceAdmin;
 import org.opengroup.osdu.schema.provider.interfaces.authorization.SystemPartitionAuthService;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class AuthorizationFilterSATest {
 
     @Mock
@@ -45,19 +47,16 @@ public class AuthorizationFilterSATest {
     @InjectMocks
     AuthorizationFilterSA authorizationFilterSA;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
 
     @Test
     public void testRuntimeException_when_DataPartitionIsPresentInSystemHeader()  {
-
         Mockito.when(headers.getAuthorization()).thenReturn("test");
         Mockito.when(headers.getPartitionId()).thenReturn("test");
         Mockito.when(entitlementsFactory.create(headers)).thenReturn(en);
-        expectedException.expect(BadRequestException.class);
-        expectedException.expectMessage("data-partition-id header should not be passed");
-        authorizationFilterSA.hasPermissions();
+
+        BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> authorizationFilterSA.hasPermissions());
+        org.junit.jupiter.api.Assertions.assertEquals("data-partition-id header should not be passed", exception.getMessage());
     }
 
 

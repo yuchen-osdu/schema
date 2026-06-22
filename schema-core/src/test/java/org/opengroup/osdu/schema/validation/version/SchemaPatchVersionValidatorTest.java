@@ -1,19 +1,23 @@
 package org.opengroup.osdu.schema.validation.version;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.opengroup.osdu.schema.exceptions.SchemaVersionException;
 import org.opengroup.osdu.schema.validation.version.model.SchemaBreakingChanges;
 import org.opengroup.osdu.schema.validation.version.model.SchemaPatch;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class SchemaPatchVersionValidatorTest {
 
 	@InjectMocks 
@@ -34,10 +38,10 @@ public class SchemaPatchVersionValidatorTest {
 		}
 	}
 
-	@Test(expected = SchemaVersionException.class)
-	public void testHandleBreakingChanges_Exception() throws SchemaVersionException {
+	@Test
+	public void testHandleBreakingChanges_Exception() {
 		List<SchemaBreakingChanges> breakingChanges = new ArrayList<SchemaBreakingChanges>();
 		breakingChanges.add(new SchemaBreakingChanges(new SchemaPatch(), "It's breaking change"));
-		patchVersionValidator.handleBreakingChanges(breakingChanges);
+		assertThrows(SchemaVersionException.class, () -> patchVersionValidator.handleBreakingChanges(breakingChanges));
 	}
 }

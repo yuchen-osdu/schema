@@ -1,14 +1,14 @@
 package org.opengroup.osdu.schema.logging;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opengroup.osdu.core.common.logging.audit.AuditAction;
 import org.opengroup.osdu.core.common.logging.audit.AuditPayload;
 import org.opengroup.osdu.core.common.logging.audit.AuditStatus;
 import org.opengroup.osdu.schema.constants.SchemaConstants;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,7 +20,7 @@ public class AuditEventsTest {
     private AuditEvents auditEvents;
     private List<String> resources;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         auditEvents = new AuditEvents("user@example.com", "127.0.0.1", "JUnitAgent", SchemaConstants.ENTITLEMENT_SERVICE_GROUP_EDITORS);
         resources = Collections.singletonList("test-resource");

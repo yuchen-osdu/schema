@@ -1,12 +1,12 @@
 package org.opengroup.osdu.schema.api;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
 import java.util.LinkedList;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.opengroup.osdu.schema.enums.SchemaScope;
@@ -23,7 +23,10 @@ import org.opengroup.osdu.schema.model.SchemaUpsertResponse;
 import org.opengroup.osdu.schema.service.ISchemaService;
 import org.opengroup.osdu.schema.validation.request.SchemaInfoRequestValidator;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -31,7 +34,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class SchemaControllerTest {
 
     @Mock
@@ -80,68 +84,68 @@ public class SchemaControllerTest {
 
     }
     
-    @Test(expected = BadRequestException.class)
+    @Test
     public void testUpsertSchema_Failed() throws ApplicationException, BadRequestException {
         schemaRequest = getSchemaRequestObject();
 
         when(schemaService.upsertSchema(schemaRequest)).thenThrow(BadRequestException.class);
-        schemaController.upsertSchema(schemaRequest);
+        assertThrows(BadRequestException.class, () -> schemaController.upsertSchema(schemaRequest));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void testCreateEmptyAuthoritySchema_Failed() throws ApplicationException, BadRequestException {
         schemaRequest = getSchemaRequestEmptyAuthority();
 
         when(schemaService.createSchema(schemaRequest)).thenThrow(BadRequestException.class);
-        assertNotNull(schemaController.createSchema(schemaRequest));
+        assertThrows(BadRequestException.class, () -> schemaController.createSchema(schemaRequest));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void testCreateEmptyEntitySchema_Failed() throws ApplicationException, BadRequestException {
         schemaRequest = getSchemaRequestEmptySource();
 
         when(schemaService.createSchema(schemaRequest)).thenThrow(BadRequestException.class);
-        assertNotNull(schemaController.createSchema(schemaRequest));
+        assertThrows(BadRequestException.class, () -> schemaController.createSchema(schemaRequest));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void testCreateEmptySourceSchema_Failed() throws ApplicationException, BadRequestException {
         schemaRequest = getSchemaRequestEmptyEntity();
 
         when(schemaService.createSchema(schemaRequest)).thenThrow(BadRequestException.class);
-        assertNotNull(schemaController.createSchema(schemaRequest));
+        assertThrows(BadRequestException.class, () -> schemaController.createSchema(schemaRequest));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void testCreateAuthoritySchemaSpecialCharacters_Failed() throws ApplicationException, BadRequestException {
         schemaRequest = getSchemaRequestSpecialCharactersAuthority();
 
         when(schemaService.createSchema(schemaRequest)).thenThrow(BadRequestException.class);
-        assertNotNull(schemaController.createSchema(schemaRequest));
+        assertThrows(BadRequestException.class, () -> schemaController.createSchema(schemaRequest));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void testCreateSourceSchemaSpecialCharacters_Failed() throws ApplicationException, BadRequestException {
         schemaRequest = getSchemaRequestSpecialCharactersSource();
 
         when(schemaService.createSchema(schemaRequest)).thenThrow(BadRequestException.class);
-        assertNotNull(schemaController.createSchema(schemaRequest));
+        assertThrows(BadRequestException.class, () -> schemaController.createSchema(schemaRequest));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void testCreateEntitySchemaSpecialCharacters_Failed() throws ApplicationException, BadRequestException {
         schemaRequest = getSchemaRequestSpecialCharactersEntity();
 
         when(schemaService.createSchema(schemaRequest)).thenThrow(BadRequestException.class);
-        assertNotNull(schemaController.createSchema(schemaRequest));
+        assertThrows(BadRequestException.class, () -> schemaController.createSchema(schemaRequest));
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void testCreateAuthorityMultipleSpaces_Failed() throws ApplicationException, BadRequestException {
         schemaRequest = getSchemaRequestMultipleSpacesAuthority();
 
         when(schemaService.createSchema(schemaRequest)).thenThrow(BadRequestException.class);
-        assertNotNull(schemaController.createSchema(schemaRequest));
+        assertThrows(BadRequestException.class, () -> schemaController.createSchema(schemaRequest));
     }
 
     @Test

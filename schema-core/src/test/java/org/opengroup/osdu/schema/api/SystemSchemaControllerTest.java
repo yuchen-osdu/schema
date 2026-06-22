@@ -1,8 +1,7 @@
 package org.opengroup.osdu.schema.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.opengroup.osdu.schema.enums.SchemaScope;
@@ -16,14 +15,19 @@ import org.opengroup.osdu.schema.model.SchemaRequest;
 import org.opengroup.osdu.schema.model.SchemaUpsertResponse;
 import org.opengroup.osdu.schema.service.ISchemaService;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.Date;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class SystemSchemaControllerTest {
 
     @Mock
@@ -52,12 +56,12 @@ public class SystemSchemaControllerTest {
 
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void testUpsertSchema_Failed() throws ApplicationException, BadRequestException {
         schemaRequest = getSchemaRequestObject();
 
         when(schemaService.upsertSystemSchema(schemaRequest)).thenThrow(BadRequestException.class);
-        systemSchemaController.upsertSystemSchema(schemaRequest);
+        assertThrows(BadRequestException.class, () -> systemSchemaController.upsertSystemSchema(schemaRequest));
     }
 
     private SchemaRequest getSchemaRequestObject() {

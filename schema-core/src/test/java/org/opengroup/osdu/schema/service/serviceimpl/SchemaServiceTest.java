@@ -1,9 +1,9 @@
 package org.opengroup.osdu.schema.service.serviceimpl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -16,14 +16,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.json.JSONException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
+import static org.mockito.ArgumentMatchers.any;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.opengroup.osdu.core.common.logging.JaxRsDpsLog;
@@ -57,14 +54,18 @@ import org.opengroup.osdu.schema.validation.version.SchemaVersionValidatorFactor
 import org.opengroup.osdu.schema.validation.version.VersionValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class SchemaServiceTest {
 
 	@InjectMocks
@@ -114,10 +115,7 @@ public class SchemaServiceTest {
 
 	private Date currDate = new Date();
 
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
-
-	@Before
+	@BeforeEach
 	public void setUp() {
 		schemaService.setSchemaResolver(schemaResolver);
 	}
@@ -125,9 +123,9 @@ public class SchemaServiceTest {
 	@Test
 	public void testGetSchema_EmptySchemaId() throws BadRequestException, NotFoundException, ApplicationException {
 		String schemaId = "";
-		expectedException.expect(BadRequestException.class);
-		expectedException.expectMessage(SchemaConstants.EMPTY_ID);
-		schemaService.getSchema(schemaId);
+		BadRequestException exception = Assertions.assertThrows(BadRequestException.class,
+				() -> schemaService.getSchema(schemaId));
+		assertEquals(SchemaConstants.EMPTY_ID, exception.getMessage());
 	}
 
 	@Test
@@ -153,15 +151,15 @@ public class SchemaServiceTest {
 
 	@Test
 	public void testGetSchema_NotFoundException() throws BadRequestException, NotFoundException, ApplicationException {
-		expectedException.expect(NotFoundException.class);
-		expectedException.expectMessage(SchemaConstants.SCHEMA_NOT_PRESENT);
 		String dataPartitionId = "private";
 		Mockito.when(headers.getPartitionId()).thenReturn(dataPartitionId);
 		String schemaId = "os..wks..well.1.1";
 		Mockito.when(schemaStore.getSchema(dataPartitionId, schemaId)).thenThrow(NotFoundException.class);
 		Mockito.when(schemaStore.getSystemSchema(schemaId))
 				.thenThrow(new NotFoundException(SchemaConstants.SCHEMA_NOT_PRESENT));
-		schemaService.getSchema(schemaId);
+		NotFoundException exception = Assertions.assertThrows(NotFoundException.class,
+				() -> schemaService.getSchema(schemaId));
+		assertEquals(SchemaConstants.SCHEMA_NOT_PRESENT, exception.getMessage());
 	}
 
 	@Test
@@ -193,7 +191,7 @@ public class SchemaServiceTest {
 		Mockito.when(schemaStore.getSchema(anyString(), anyString())).thenReturn(schReqPubInt.getSchema().toString());
 
 		Mockito.when(schemaUtil.findSchemaToCompare(schReqPubInt.getSchemaInfo(), false)).thenReturn(schemaInfoArr);
-		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(Matchers.any(SchemaValidationType.class)))
+		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(any(SchemaValidationType.class)))
 				.thenReturn(mock(VersionValidator.class));
 		assertEquals(SchemaStatus.PUBLISHED, schemaService.createSchema(schReqPubInt).getStatus());
 		verify(messageBus, times(1)).publishMessage( anyString(), anyString());
@@ -228,7 +226,7 @@ public class SchemaServiceTest {
 		Mockito.when(schemaStore.getSchema(anyString(), anyString())).thenReturn(schReq.getSchema().toString());
 
 		Mockito.when(schemaUtil.findSchemaToCompare(schReq.getSchemaInfo(), false)).thenReturn(schemaInfoArr);
-		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(Matchers.any(SchemaValidationType.class)))
+		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(any(SchemaValidationType.class)))
 				.thenReturn(mock(VersionValidator.class));
 		assertEquals(schInfo, schemaService.createSchema(schReq));
 		verify(messageBus, times(1)).publishMessage( anyString(), anyString());
@@ -237,8 +235,6 @@ public class SchemaServiceTest {
 	@Test
 	public void testCreateSchema_FailScenario_CleanUpScenario()
 			throws ApplicationException, NotFoundException, BadRequestException, JsonProcessingException {
-		expectedException.expect(ApplicationException.class);
-
 		SchemaRequest schReq = getMockSchemaObject_published_InternalScope();
 
 		Mockito.when(headers.getPartitionId()).thenReturn("tenant");
@@ -258,14 +254,12 @@ public class SchemaServiceTest {
 				.thenReturn(true);
 		Mockito.when(schemaResolver.resolveSchema(Mockito.anyString())).thenReturn("{}");
 		Mockito.when(schemaStore.createSchema(Mockito.anyString(), Mockito.anyString())).thenThrow(ApplicationException.class);
-
-
 		Mockito.when(schemaStore.getSchema(anyString(), anyString())).thenReturn(schReq.getSchema().toString());
-
 		Mockito.when(schemaUtil.findSchemaToCompare(schReq.getSchemaInfo(), false)).thenReturn(schemaInfoArr);
-		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(Matchers.any(SchemaValidationType.class)))
+		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(any(SchemaValidationType.class)))
 				.thenReturn(mock(VersionValidator.class));
-		schemaService.createSchema(schReq);
+
+		Assertions.assertThrows(ApplicationException.class, () -> schemaService.createSchema(schReq));
 		verify(messageBus, times(0)).publishMessage(anyString(), anyString());
 	}
 
@@ -297,7 +291,7 @@ public class SchemaServiceTest {
 		Mockito.when(schemaStore.getSchema(anyString(), anyString())).thenReturn(schReqPub.getSchema().toString());
 
 		Mockito.when(schemaUtil.findSchemaToCompare(schReqPub.getSchemaInfo(), false)).thenReturn(schemaInfoArr);
-		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(Matchers.any(SchemaValidationType.class)))
+		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(any(SchemaValidationType.class)))
 				.thenReturn(mock(VersionValidator.class));
 		assertEquals(SchemaStatus.PUBLISHED, schemaService.createSchema(schReqPub).getStatus());
 		verify(messageBus, times(1)).publishMessage( anyString(), anyString());
@@ -306,8 +300,9 @@ public class SchemaServiceTest {
 
 	public void testCreateSchema_Private_SchemaAlreadyRegistered()
 			throws JsonProcessingException, ApplicationException, BadRequestException, NotFoundException {
-		expectedException.expect(BadRequestException.class);
-		expectedException.expectMessage(SchemaConstants.SCHEMA_ID_EXISTS);
+		BadRequestException exception = Assertions.assertThrows(BadRequestException.class,
+				() -> schemaService.createSchema(getMockSchemaObject_published()));
+		assertEquals(SchemaConstants.SCHEMA_ID_EXISTS, exception.getMessage());
 		String schemaId = getMockSchemaObject_published().getSchemaInfo().getSchemaIdentity().getId();
 		String tenantId = "testing";
 		Mockito.when(authorityService.checkAndRegisterAuthorityIfNotPresent(
@@ -320,14 +315,12 @@ public class SchemaServiceTest {
 						getMockSchemaObject_published_InternalScope().getSchemaInfo().getSchemaIdentity().getEntityType()))
 				.thenReturn(true);
 		Mockito.when(schemaInfoStore.isUnique(schemaId, tenantId)).thenReturn(false);
-		schemaService.createSchema(getMockSchemaObject_published());
 		verify(messageBus, times(0)).publishMessage( anyString(), anyString());
 	}
 
 	@Test
 	public void testCreateSchema_withBreakingChanges_FoundScenario()
 			throws ApplicationException, NotFoundException, BadRequestException, IOException {
-		expectedException.expect(BadRequestException.class);
 		Mockito.when(headers.getPartitionId()).thenReturn("tenant");
 		ObjectMapper mapper = new ObjectMapper();
 		SchemaRequest schReqBreakingChange = getMockSchemaObject_BreakingChanges();
@@ -338,13 +331,13 @@ public class SchemaServiceTest {
 		Mockito.when(schemaStore.getSchema(anyString(), anyString())).thenReturn(latestSchema);
 		Mockito.when(schemaResolver.resolveSchema(Mockito.anyString())).thenReturn(inputSchema);
 		Mockito.when(schemaUtil.findSchemaToCompare(schReqBreakingChange.getSchemaInfo(), false)).thenReturn(schemaInfoArr);
-
 		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(SchemaValidationType.PATCH))
 				.thenReturn(patchVersionValidator);
 		Mockito.doThrow(SchemaVersionException.class).when(patchVersionValidator).validateVersionChange(anyString(), anyString());
 		Mockito.when(schemaInfoStore.getLatestMinorVerSchema(getMockSchemaInfo_Published_InternalScope()))
 				.thenReturn(latestSchema);
-		schemaService.createSchema(schReqBreakingChange);
+
+		Assertions.assertThrows(BadRequestException.class, () -> schemaService.createSchema(schReqBreakingChange));
 		verify(messageBus, times(0)).publishMessage( anyString(), anyString());
 	}
 
@@ -379,7 +372,7 @@ public class SchemaServiceTest {
 		Mockito.when(schemaInfoStore.createSchemaInfo(mockSchReqPubInt))
 				.thenReturn(mockSchInfoPubInt);
 		Mockito.when(schemaUtil.findSchemaToCompare(mockSchReqPubInt.getSchemaInfo(), false)).thenReturn(schemaInfoArr);
-		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(Matchers.any(SchemaValidationType.class)))
+		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(any(SchemaValidationType.class)))
 				.thenReturn(mock(VersionValidator.class));
 		assertEquals(mockSchInfoPubInt, schemaService.createSchema(mockSchReqPubInt));
 
@@ -389,8 +382,6 @@ public class SchemaServiceTest {
 	@Test
 	public void testCreateSchema_ApplicationException_Entity_PrivateSchema()
 			throws JsonProcessingException, ApplicationException, BadRequestException, NotFoundException {
-		expectedException.expect(ApplicationException.class);
-		expectedException.expectMessage("Internal server error");
 		Mockito.when(headers.getPartitionId()).thenReturn("tenant");
 		when(schemaInfoStore.isUniqueSystemSchema("os:wks:well:1.1.1")).thenReturn(true);
 		when(schemaInfoStore.isUnique("os:wks:well:1.1.1", "tenant")).thenReturn(true);
@@ -406,17 +397,18 @@ public class SchemaServiceTest {
 		Mockito.when(schemaInfoStore.createSchemaInfo(schReqPub)).thenReturn(schReqPub.getSchemaInfo());
 		Mockito.when(schemaStore.getSchema(anyString(), anyString())).thenReturn("");
 		Mockito.when(schemaUtil.findSchemaToCompare(schReqPub.getSchemaInfo(), false)).thenReturn(schemaInfoArr);
-		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(Matchers.any(SchemaValidationType.class)))
+		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(any(SchemaValidationType.class)))
 				.thenReturn(mock(VersionValidator.class));
-		schemaService.createSchema(schReqPub);
+
+		ApplicationException exception = Assertions.assertThrows(ApplicationException.class,
+				() -> schemaService.createSchema(schReqPub));
+		assertEquals("Internal server error", exception.getMessage());
 		verify(messageBus, times(0)).publishMessage( anyString(), anyString());
 	}
 
 	@Test
 	public void testCreateSchema_ApplicationException_Authority_PrivateSchema()
 			throws NotFoundException, BadRequestException, ApplicationException, JsonProcessingException {
-		expectedException.expect(ApplicationException.class);
-		expectedException.expectMessage(SchemaConstants.INTERNAL_SERVER_ERROR);
 		Mockito.when(headers.getPartitionId()).thenReturn("tenant");
 		when(schemaInfoStore.isUniqueSystemSchema("os:wks:well:1.1.1")).thenReturn(true);
 		when(schemaInfoStore.isUnique("os:wks:well:1.1.1", "tenant")).thenReturn(true);
@@ -431,17 +423,18 @@ public class SchemaServiceTest {
 				schReqPub.getSchemaInfo().getSchemaIdentity().getEntityType())).thenReturn(true);
 		Mockito.when(schemaStore.getSchema(anyString(), anyString())).thenReturn("");
 		Mockito.when(schemaUtil.findSchemaToCompare(schReqPub.getSchemaInfo(), false)).thenReturn(schemaInfoArr);
-		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(Matchers.any(SchemaValidationType.class)))
+		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(any(SchemaValidationType.class)))
 				.thenReturn(mock(VersionValidator.class));
-		schemaService.createSchema(schReqPub);
+
+		ApplicationException exception = Assertions.assertThrows(ApplicationException.class,
+				() -> schemaService.createSchema(schReqPub));
+		assertEquals(SchemaConstants.INTERNAL_SERVER_ERROR, exception.getMessage());
 		verify(messageBus, times(0)).publishMessage( anyString(), anyString());
 	}
 
 	@Test
 	public void testCreateSchema_ApplicationException_Source_PrivateSchema()
 			throws JsonProcessingException, ApplicationException, BadRequestException, NotFoundException {
-		expectedException.expect(ApplicationException.class);
-		expectedException.expectMessage("Internal server error");
 		Mockito.when(headers.getPartitionId()).thenReturn("tenant");
 		when(schemaInfoStore.isUniqueSystemSchema("os:wks:well:1.1.1")).thenReturn(true);
 		when(schemaInfoStore.isUnique("os:wks:well:1.1.1", "tenant")).thenReturn(true);
@@ -455,25 +448,28 @@ public class SchemaServiceTest {
 		Mockito.when(entityTypeService.checkAndRegisterEntityTypeIfNotPresent(
 				schReqPub.getSchemaInfo().getSchemaIdentity().getEntityType())).thenReturn(true);
 		Mockito.when(schemaStore.getSchema(anyString(), anyString())).thenReturn("");
-
 		Mockito.when(schemaUtil.findSchemaToCompare(schReqPub.getSchemaInfo(), false)).thenReturn(schemaInfoArr);
-		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(Matchers.any(SchemaValidationType.class)))
+		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(any(SchemaValidationType.class)))
 				.thenReturn(mock(VersionValidator.class));
-		schemaService.createSchema(schReqPub);
+
+		ApplicationException exception = Assertions.assertThrows(ApplicationException.class,
+				() -> schemaService.createSchema(schReqPub));
+		assertEquals("Internal server error", exception.getMessage());
 		verify(messageBus, times(0)).publishMessage( anyString(), anyString());
 	}
 
 	@Test
 	public void testCreateSchema_schemaExists()
 			throws ApplicationException, NotFoundException, BadRequestException, JsonProcessingException {
-		expectedException.expect(BadRequestException.class);
-		expectedException.expectMessage(SchemaConstants.SCHEMA_ID_EXISTS);
 		String dataPartitionId = "common";
 		String schemaId = "os:wks:well:1.1.1";
 		Mockito.when(headers.getPartitionId()).thenReturn(dataPartitionId);
 		when(schemaInfoStore.isUniqueSystemSchema(schemaId)).thenReturn(false);
 		when(schemaInfoStore.isUnique(schemaId, "tenant")).thenReturn(false);
-		schemaService.createSchema(getMockSchemaObject_published());
+
+		BadRequestException exception = Assertions.assertThrows(BadRequestException.class,
+				() -> schemaService.createSchema(getMockSchemaObject_published()));
+		assertEquals(SchemaConstants.SCHEMA_ID_EXISTS, exception.getMessage());
 		verify(messageBus, times(0)).publishMessage( anyString(), anyString());
 	}
 
@@ -592,7 +588,7 @@ public class SchemaServiceTest {
 
 		Mockito.when(schemaStore.getSchema(anyString(), anyString())).thenReturn("");
 		Mockito.when(schemaUtil.findSchemaToCompare(input, false)).thenReturn(schemaInfoArr);
-		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(Matchers.any(SchemaValidationType.class)))
+		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(any(SchemaValidationType.class)))
 				.thenReturn(mock(VersionValidator.class));
 		assertNotNull(schemaService.updateSchema(getMockSchemaObject_Development()));
 		verify(messageBus, times(1)).publishMessage( anyString(), anyString());
@@ -605,7 +601,7 @@ public class SchemaServiceTest {
 		QueryParams queryParams = QueryParams.builder().authority("test").limit(10).build();
 		Mockito.when(headers.getPartitionId()).thenReturn("test");
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "test")).thenReturn(schemaInfos);
-		Assert.assertEquals(1, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
+		Assertions.assertEquals(1, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
 	}
 
 	@Test
@@ -615,7 +611,7 @@ public class SchemaServiceTest {
 		schemaInfos.add(getMockSchemaInfo());
 		QueryParams queryParams = QueryParams.builder().scope("SHARED").authority("test").limit(10).build();
 		Mockito.when(schemaInfoStore.getSystemSchemaInfoList(queryParams)).thenReturn(schemaInfos);
-		Assert.assertEquals(1, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
+		Assertions.assertEquals(1, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
 	}
 
 	@Test
@@ -625,7 +621,7 @@ public class SchemaServiceTest {
 		schemaInfos.add(getMockSchemaInfo());
 		QueryParams queryParams = QueryParams.builder().scope("random").authority("test").limit(10).build();
 		Mockito.when(schemaInfoStore.getSystemSchemaInfoList(queryParams)).thenReturn(schemaInfos);
-		Assert.assertEquals(0, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
+		Assertions.assertEquals(0, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
 	}
 
 	@Test
@@ -636,7 +632,7 @@ public class SchemaServiceTest {
 		QueryParams queryParams = QueryParams.builder().scope("INTERNAL").authority("test").limit(10).build();
 		Mockito.when(headers.getPartitionId()).thenReturn("tenant");
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "tenant")).thenReturn(schemaInfos);
-		Assert.assertEquals(1, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
+		Assertions.assertEquals(1, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
 	}
 
 	@Test
@@ -658,7 +654,7 @@ public class SchemaServiceTest {
 		Mockito.when(schemaInfoStore.getSystemSchemaInfoList(queryParams)).thenReturn(schemaPub);
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "tenant")).thenReturn(schemaInt);
 
-		Assert.assertEquals(1, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
+		Assertions.assertEquals(1, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
 	}
 
 	@Test
@@ -671,7 +667,7 @@ public class SchemaServiceTest {
 		schemaInfos.add(getMockSchemaInfo());
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "tenant")).thenReturn(schemaInfos);
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "tenant")).thenReturn(schemaInfos);
-		Assert.assertEquals(2, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
+		Assertions.assertEquals(2, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
 	}
 
 	@Test
@@ -684,7 +680,7 @@ public class SchemaServiceTest {
 		schemaInfos.add(getMockSchemaInfo());
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "tenant")).thenReturn(schemaInfos);
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "tenant")).thenReturn(schemaInfos);
-		Assert.assertEquals(2, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
+		Assertions.assertEquals(2, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
 	}
 
 	@Test
@@ -698,7 +694,7 @@ public class SchemaServiceTest {
 		schemaInfos.add(getMockSchemaInfo());
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "tenant")).thenReturn(schemaInfos);
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "tenant")).thenReturn(schemaInfos);
-		Assert.assertEquals(2, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
+		Assertions.assertEquals(2, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
 	}
 
 	@Test
@@ -711,7 +707,7 @@ public class SchemaServiceTest {
 		schemaInfos.add(getMockSchemaInfo());
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "tenant")).thenReturn(schemaInfos);
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "tenant")).thenReturn(schemaInfos);
-		Assert.assertEquals(2, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
+		Assertions.assertEquals(2, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
 	}
 
 	@Test
@@ -734,16 +730,16 @@ public class SchemaServiceTest {
 		Mockito.when(schemaInfoStore.getSystemSchemaInfoList(queryParams)).thenReturn(schemaPub);
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "tenant")).thenReturn(schemaInt);
 
-		Assert.assertEquals(1, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
+		Assertions.assertEquals(1, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
 	}
 
 	@Test
 	public void testGetSchemaInfoList_LatestVersion_MajorMinorConflict_MinorVersionWithoutMajor()
 			throws ApplicationException, NotFoundException, BadRequestException {
 		QueryParams queryParams = QueryParams.builder().latestVersion(true).schemaVersionMinor(1l).limit(10).build();
-		expectedException.expect(BadRequestException.class);
-		expectedException.expectMessage(SchemaConstants.LATESTVERSION_MINORFILTER_WITHOUT_MAJOR);
-		schemaService.getSchemaInfoList(queryParams);
+		BadRequestException exception = Assertions.assertThrows(BadRequestException.class,
+				() -> schemaService.getSchemaInfoList(queryParams));
+		assertEquals(SchemaConstants.LATESTVERSION_MINORFILTER_WITHOUT_MAJOR, exception.getMessage());
 	}
 
 	@Test
@@ -754,7 +750,7 @@ public class SchemaServiceTest {
 				.schemaVersionMinor(1L).limit(10).build();
 		Mockito.when(headers.getPartitionId()).thenReturn("tenant");
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "tenant")).thenReturn(schemaInfos);
-		Assert.assertEquals(0, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
+		Assertions.assertEquals(0, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
 	}
 
 	@Test
@@ -776,7 +772,7 @@ public class SchemaServiceTest {
 		Mockito.when(schemaInfoStore.getSystemSchemaInfoList(queryParams)).thenReturn(schemaPub);
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "tenant")).thenReturn(schemaInt);
 
-		Assert.assertEquals(1, schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size());
+		Assertions.assertEquals(1, schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size());
 	}
 
 	@Test
@@ -797,7 +793,7 @@ public class SchemaServiceTest {
 		Mockito.when(schemaInfoStore.getSystemSchemaInfoList(queryParams)).thenReturn(schemaPub);
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "tenant")).thenReturn(schemaInt);
 
-		Assert.assertEquals(1, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
+		Assertions.assertEquals(1, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
 	}
 
 	@Test
@@ -818,7 +814,7 @@ public class SchemaServiceTest {
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "common")).thenReturn(schemaPub);
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "tenant")).thenReturn(schemaInt);
 
-		Assert.assertEquals(0, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
+		Assertions.assertEquals(0, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
 	}
 
 	@Test
@@ -841,8 +837,8 @@ public class SchemaServiceTest {
 
 		List<SchemaInfo> result = schemaService.getSchemaInfoList(queryParams).getSchemaInfos();
 
-		Assert.assertEquals(1, (result.size()));
-		Assert.assertEquals("os:abc:well:1.1.1", (result.get(0).getSchemaIdentity().getId()));
+		Assertions.assertEquals(1, (result.size()));
+		Assertions.assertEquals("os:abc:well:1.1.1", (result.get(0).getSchemaIdentity().getId()));
 	}
 
 	@Test
@@ -857,10 +853,10 @@ public class SchemaServiceTest {
 		Mockito.when(headers.getPartitionId()).thenReturn("tenant");
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "tenant")).thenReturn(schemaInfos.subList(0, 1));
 
-		Assert.assertTrue(schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size() > 0);
+		Assertions.assertTrue(schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size() > 0);
 
 		for(SchemaInfo outputSchemaInfo : schemaService.getSchemaInfoList(queryParams).getSchemaInfos()) {
-			Assert.assertTrue("INTERNAL".equals(outputSchemaInfo.getScope().toString()));
+			Assertions.assertTrue("INTERNAL".equals(outputSchemaInfo.getScope().toString()));
 		}
 
 	}
@@ -875,8 +871,8 @@ public class SchemaServiceTest {
 		Mockito.when(headers.getPartitionId()).thenReturn("tenant");
 		Mockito.when(schemaInfoStore.getSchemaInfoList(queryParams, "tenant")).thenReturn(schemaInfos);
 
-		Assert.assertEquals(1, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
-		Assert.assertTrue("INTERNAL".equals(schemaService.getSchemaInfoList(queryParams).getSchemaInfos().get(0).getScope().toString()));
+		Assertions.assertEquals(1, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
+		Assertions.assertTrue("INTERNAL".equals(schemaService.getSchemaInfoList(queryParams).getSchemaInfos().get(0).getScope().toString()));
 	}
 
 	@Test
@@ -892,10 +888,10 @@ public class SchemaServiceTest {
 
 		List<SchemaInfo> finalList = schemaService.getSchemaInfoList(queryParams).getSchemaInfos();
 
-		Assert.assertTrue(finalList.size() == 2);
+		Assertions.assertTrue(finalList.size() == 2);
 
 		for(SchemaInfo outputSchemaInfo : finalList) {
-			Assert.assertTrue("SHARED".equals(outputSchemaInfo.getScope().toString()));
+			Assertions.assertTrue("SHARED".equals(outputSchemaInfo.getScope().toString()));
 		}
 
 	}
@@ -911,9 +907,9 @@ public class SchemaServiceTest {
 		Mockito.when(headers.getPartitionId()).thenReturn("tenant");
 		Mockito.when(schemaInfoStore.getSystemSchemaInfoList(queryParams)).thenReturn(schemaInfos);
 
-		Assert.assertEquals(1, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
-		Assert.assertTrue("SHARED".equals(schemaService.getSchemaInfoList(queryParams).getSchemaInfos().get(0).getScope().toString()));
-		Assert.assertTrue("os".equals(schemaService.getSchemaInfoList(queryParams).getSchemaInfos().get(0).getSchemaIdentity().getAuthority()));
+		Assertions.assertEquals(1, (schemaService.getSchemaInfoList(queryParams).getSchemaInfos().size()));
+		Assertions.assertTrue("SHARED".equals(schemaService.getSchemaInfoList(queryParams).getSchemaInfos().get(0).getScope().toString()));
+		Assertions.assertTrue("os".equals(schemaService.getSchemaInfoList(queryParams).getSchemaInfos().get(0).getSchemaIdentity().getAuthority()));
 
 
 	}
@@ -923,9 +919,9 @@ public class SchemaServiceTest {
 			throws ApplicationException, NotFoundException, BadRequestException {
 		QueryParams queryParams = QueryParams.builder().authority("test").latestVersion(true).schemaVersionMajor(1L)
 				.schemaVersionPatch(1L).limit(10).build();
-		expectedException.expect(BadRequestException.class);
-		expectedException.expectMessage(SchemaConstants.LATESTVERSION_PATCHFILTER_WITHOUT_MINOR);
-		schemaService.getSchemaInfoList(queryParams);
+		BadRequestException exception = Assertions.assertThrows(BadRequestException.class,
+				() -> schemaService.getSchemaInfoList(queryParams));
+		assertEquals(SchemaConstants.LATESTVERSION_PATCHFILTER_WITHOUT_MINOR, exception.getMessage());
 	}
 
 	@Test
@@ -933,9 +929,9 @@ public class SchemaServiceTest {
 			throws ApplicationException, NotFoundException, BadRequestException {
 		QueryParams queryParams = QueryParams.builder().latestVersion(true).schemaVersionMinor(1l)
 				.schemaVersionPatch(1L).limit(10).build();
-		expectedException.expect(BadRequestException.class);
-		expectedException.expectMessage(SchemaConstants.LATESTVERSION_MINORFILTER_WITHOUT_MAJOR);
-		schemaService.getSchemaInfoList(queryParams);
+		BadRequestException exception = Assertions.assertThrows(BadRequestException.class,
+				() -> schemaService.getSchemaInfoList(queryParams));
+		assertEquals(SchemaConstants.LATESTVERSION_MINORFILTER_WITHOUT_MAJOR, exception.getMessage());
 	}
 
 	@Test
@@ -953,7 +949,7 @@ public class SchemaServiceTest {
 		Mockito.when(schemaStore.getSchema(anyString(), anyString())).thenReturn("");
 
 		Mockito.when(schemaUtil.findSchemaToCompare(schInfo, false)).thenReturn(schemaInfoArr);
-		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(Matchers.any(SchemaValidationType.class)))
+		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(any(SchemaValidationType.class)))
 				.thenReturn(mock(VersionValidator.class));
 
 		assertEquals(HttpStatus.OK, schemaService.upsertSchema(schReq).getHttpCode());
@@ -996,12 +992,12 @@ public class SchemaServiceTest {
 
 		Mockito.when(schemaUtil.findSchemaToCompare(schReq.getSchemaInfo(), false)).thenReturn(schemaInfoArr);
 
-		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(Matchers.any(SchemaValidationType.class)))
+		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(any(SchemaValidationType.class)))
 				.thenReturn(mock(VersionValidator.class));
 		assertEquals(HttpStatus.CREATED, schemaService.upsertSchema(schReq).getHttpCode());
 	}
 
-	@Test(expected = BadRequestException.class)
+	@Test
 	public void testUpsertSchema_WhenSchemaExistInOtherTenant()
 			throws ApplicationException, NotFoundException, BadRequestException {
 		//schemaInfoStore.isUnique(schemaId, dataPartitionId)
@@ -1018,43 +1014,31 @@ public class SchemaServiceTest {
 		String schemaId = "os:wks:well:1.1.1";
 
 		when(schemaInfoStore.isUnique(schemaId, "tenant")).thenReturn(false);
-		schemaService.upsertSchema(schReq).getHttpCode();
+		Assertions.assertThrows(BadRequestException.class, () -> schemaService.upsertSchema(schReq).getHttpCode());
 	}
 
 	@Test
 	public void testSchemaCreate_Patch_BreakingChanges()
 			throws ApplicationException, NotFoundException, BadRequestException, JsonMappingException, JsonProcessingException {
-
-		//Exception is expected when comparing patch version fails
-		expectedException.expect(BadRequestException.class);
-
 		SchemaRequest schReq = getMockSchemaObject_Development();
 		SchemaInfo[] schemaInfoArr = new SchemaInfo [2];
 		schemaInfoArr[1]=schReq.getSchemaInfo();
-		//Schema is unique
 		when(schemaInfoStore.isUnique(anyString(), anyString())).thenReturn(true);
-		//Find nearest Schema version to compare with
 		when(schemaUtil.findSchemaToCompare(schReq.getSchemaInfo(), false)).thenReturn(schemaInfoArr);
-		//Schema is successfully resolved
 		Mockito.when(schemaResolver.resolveSchema(Mockito.anyString())).thenReturn("{}");
-		//Nothing is returned
 		Mockito.when(schemaStore.getSchema(anyString(), anyString())).thenReturn("{}");
 		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(SchemaValidationType.PATCH))
 				.thenReturn(patchVersionValidator);
 		Mockito.doThrow(new SchemaVersionException(SchemaConstants.BREAKING_CHANGES_PATCH)).when(patchVersionValidator).validateVersionChange(anyString(), anyString());
 		Mockito.when(headers.getPartitionId()).thenReturn("tenant");
-		schemaService.createSchema(schReq);
-		//Assert that createSchema is not called even once
+
+		Assertions.assertThrows(BadRequestException.class, () -> schemaService.createSchema(schReq));
 		verify(schemaStore, times(0)).createSchema(anyString(), anyString());
 	}
 
 	@Test
 	public void testSchemaCreate_WhenMajorVersionIsGreater_BreakingChanges()
 			throws ApplicationException, NotFoundException, BadRequestException, JsonMappingException, JsonProcessingException {
-
-		//Exception is expected when comparing patch version fails
-		expectedException.expect(BadRequestException.class);
-
 		SchemaRequest schReq = getMockSchemaObject_Development();
 
 		SchemaInfo latestFoundInSystem = SchemaInfo.builder()
@@ -1065,36 +1049,22 @@ public class SchemaServiceTest {
 
 		SchemaInfo[] schemaInfoArr = new SchemaInfo [2];
 		schemaInfoArr[1]=latestFoundInSystem;
-
-		//Schema is unique
 		when(schemaInfoStore.isUnique(anyString(), anyString())).thenReturn(true);
-
-		//Find nearest Schema version to compare with
 		when(schemaUtil.findSchemaToCompare(schReq.getSchemaInfo(), false)).thenReturn(schemaInfoArr);
-
-		//Schema is successfully resolved
 		Mockito.when(schemaResolver.resolveSchema(Mockito.anyString())).thenReturn("{}");
-
-		//Nothing is returned
 		Mockito.when(schemaStore.getSchema(anyString(), anyString())).thenReturn("{}");
-
 		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(SchemaValidationType.MINOR))
 				.thenReturn(minorVersionValidator);
 		Mockito.doThrow(new SchemaVersionException(SchemaConstants.BREAKING_CHANGES_MINOR)).when(minorVersionValidator).validateVersionChange(anyString(), anyString());
 		Mockito.when(headers.getPartitionId()).thenReturn("tenant");
 
-		schemaService.createSchema(schReq);
-		//Assert that createSchema is not called even once
+		Assertions.assertThrows(BadRequestException.class, () -> schemaService.createSchema(schReq));
 		verify(schemaStore, times(0)).createSchema(anyString(), anyString());
 	}
 
 	@Test
 	public void testSchemaCreate_WhenMajorVersionIsLesser_BreakingChanges()
 			throws ApplicationException, NotFoundException, BadRequestException, JsonMappingException, JsonProcessingException {
-
-		//Exception is expected when comparing patch version fails
-		expectedException.expect(BadRequestException.class);
-
 		SchemaRequest schReq = getMockSchemaObject_Development();
 
 		SchemaInfo latestFoundInSystem = SchemaInfo.builder()
@@ -1105,29 +1075,16 @@ public class SchemaServiceTest {
 
 		SchemaInfo[] schemaInfoArr = new SchemaInfo [2];
 		schemaInfoArr[1]=latestFoundInSystem;
-
-		//Schema is unique
 		when(schemaInfoStore.isUnique(anyString(), anyString())).thenReturn(true);
-
-		//Find nearest Schema version to compare with
 		when(schemaUtil.findSchemaToCompare(schReq.getSchemaInfo(), false)).thenReturn(schemaInfoArr);
-
-		//Schema is successfully resolved
 		Mockito.when(schemaResolver.resolveSchema(Mockito.anyString())).thenReturn("{}");
-
-		//Nothing is returned
 		Mockito.when(schemaStore.getSchema(anyString(), anyString())).thenReturn("{}");
-
-		//Do nothing when minor level changes are compared
 		Mockito.when(schemaVersionValidatorFactory.getVersionValidator(SchemaValidationType.MINOR))
 				.thenReturn(minorVersionValidator);
 		Mockito.doThrow(new SchemaVersionException(SchemaConstants.BREAKING_CHANGES_MINOR)).when(minorVersionValidator).validateVersionChange(anyString(), anyString());
-
 		Mockito.when(headers.getPartitionId()).thenReturn("tenant");
 
-		schemaService.createSchema(schReq);
-
-		//Assert that createSchema is not called even once
+		Assertions.assertThrows(BadRequestException.class, () -> schemaService.createSchema(schReq));
 		verify(schemaStore, times(0)).createSchema(anyString(), anyString());
 	}
 

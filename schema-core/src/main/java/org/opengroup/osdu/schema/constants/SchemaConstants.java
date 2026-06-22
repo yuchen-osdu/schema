@@ -131,12 +131,14 @@ public class SchemaConstants {
     public final static String KIND = "kind";
 
     //Swagger
-    public final static String GET_SCHEMA_200_RESPONSE = "{$schema: 'http://json-schema.org/draft-07/schema#',\n" +
-            "            description: The entity shapefile.,\n" +
-            "            title: ShapeFile,\n" +
-            "            type: object,\n" +
-            "            definitions: {},\n" +
-            "        properties: {}}";
+    public final static String GET_SCHEMA_200_RESPONSE = "{\n" +
+            "  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n" +
+            "  \"description\": \"The entity shapefile.\",\n" +
+            "  \"title\": \"ShapeFile\",\n" +
+            "  \"type\": \"object\",\n" +
+            "  \"definitions\": {},\n" +
+            "  \"properties\": {}\n" +
+            "}";
 
   //Schema Validation Constants
     public static enum SkipTags

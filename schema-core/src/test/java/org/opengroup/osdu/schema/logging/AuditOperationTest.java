@@ -1,11 +1,11 @@
 package org.opengroup.osdu.schema.logging;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opengroup.osdu.schema.constants.SchemaConstants;
 
 import java.util.Collections;
 import java.util.List;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AuditOperationTest {
 
@@ -54,9 +54,10 @@ public class AuditOperationTest {
         assertTrue(roles.contains(SchemaConstants.ENTITLEMENT_SERVICE_SYSTEM_SCHEMA_EDITORS));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void should_returnUnmodifiableList() {
-        AuditOperation.SCHEMA_REGISTERED.getRequiredGroups().add("should-fail");
+        assertThrows(UnsupportedOperationException.class,
+                () -> AuditOperation.SCHEMA_REGISTERED.getRequiredGroups().add("should-fail"));
     }
 
     @Test

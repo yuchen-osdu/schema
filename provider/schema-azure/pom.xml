@@ -37,8 +37,8 @@
     <!-- Test Dependencies -->
     <cucumber.version>7.20.1</cucumber.version>
 		<!-- Plugin Versions -->
-		<surefire-plugin.version>3.2.5</surefire-plugin.version>
-		<jacoco-plugin.version>0.8.14</jacoco-plugin.version>
+		<jacoco-plugin.version>${jacoco.version}</jacoco-plugin.version>
+		<surefire-plugin.version>${maven-surefire-plugin.version}</surefire-plugin.version>
 	</properties>
 
 	<dependencyManagement>
@@ -62,16 +62,30 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
 			<groupId>org.opengroup.osdu</groupId>
 			<artifactId>core-lib-azure</artifactId>
 			<version>${core-lib-azure.version}</version>
+		</dependency>
+		<!--
+			os-core-common 7.0.0 declares lettuce-core as provided (not propagated).
+			core-lib-azure's IRedisClientFactory uses lettuce types; Mockito mocking
+			and runtime instantiation require lettuce-core on the classpath.
+		-->
+		<dependency>
+			<groupId>io.lettuce</groupId>
+			<artifactId>lettuce-core</artifactId>
+			<version>${lettuce.version}</version>
 		</dependency>
 
     <!-- Spring Dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
-      <version>${spring-boot.version}</version>
       <exclusions>
         <exclusion>
           <groupId>ch.qos.logback</groupId>
@@ -163,7 +177,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>${surefire-plugin.version}</version>
+				<version>${spring-boot-maven-plugin.version}</version>
 				<executions>
 					<execution>
 						<goals>

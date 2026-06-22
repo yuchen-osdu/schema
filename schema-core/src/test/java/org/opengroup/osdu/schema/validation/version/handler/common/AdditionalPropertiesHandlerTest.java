@@ -8,9 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.opengroup.osdu.schema.exceptions.ApplicationException;
@@ -20,12 +19,16 @@ import org.opengroup.osdu.schema.validation.version.handler.SchemaValidationHand
 import org.opengroup.osdu.schema.validation.version.model.SchemaBreakingChanges;
 import org.opengroup.osdu.schema.validation.version.model.SchemaHandlerVO;
 import org.opengroup.osdu.schema.validation.version.model.SchemaPatch;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class AdditionalPropertiesHandlerTest {
 	
 	@InjectMocks
@@ -43,7 +46,7 @@ public class AdditionalPropertiesHandlerTest {
 		for(SchemaPatch patch : schemaPatchList) {
 			additionalPropertiesHandler.compare(schemaHandlerVO, patch, schemaBreakingChanges, processedArrayPath);
 			if(schemaBreakingChanges.size() >0)
-				Assert.fail();
+				Assertions.fail();
 		}
 		
 	}
@@ -60,7 +63,7 @@ public class AdditionalPropertiesHandlerTest {
 		for(SchemaPatch patch : schemaPatchList) {
 			additionalPropertiesHandler.compare(schemaHandlerVO, patch, schemaBreakingChanges, processedArrayPath);
 			if(schemaBreakingChanges.size() >0)
-				Assert.fail();
+				Assertions.fail();
 		}
 		
 	}
@@ -77,7 +80,7 @@ public class AdditionalPropertiesHandlerTest {
 		for(SchemaPatch patch : schemaPatchList) {
 			additionalPropertiesHandler.compare(schemaHandlerVO, patch, schemaBreakingChanges, processedArrayPath);
 			if(schemaBreakingChanges.size() == 0)
-				Assert.fail();
+				Assertions.fail();
 		}
 		
 	}
@@ -94,7 +97,7 @@ public class AdditionalPropertiesHandlerTest {
 		for(SchemaPatch patch : schemaPatchList) {
 			additionalPropertiesHandler.compare(schemaHandlerVO, patch, schemaBreakingChanges, processedArrayPath);
 			if(schemaBreakingChanges.size() ==0)
-				Assert.fail();
+				Assertions.fail();
 		}
 		
 	}
@@ -111,7 +114,7 @@ public class AdditionalPropertiesHandlerTest {
 		for(SchemaPatch patch : schemaPatchList) {
 			additionalPropertiesHandler.compare(schemaHandlerVO, patch, schemaBreakingChanges, processedArrayPath);
 			if(schemaBreakingChanges.size() == 0)
-				Assert.fail();
+				Assertions.fail();
 		}
 		
 	}
@@ -128,7 +131,7 @@ public class AdditionalPropertiesHandlerTest {
 		for(SchemaPatch patch : schemaPatchList) {
 			additionalPropertiesHandler.compare(schemaHandlerVO, patch, schemaBreakingChanges, processedArrayPath);
 			if(schemaBreakingChanges.size() == 0)
-				Assert.fail();
+				Assertions.fail();
 		}
 		
 	}

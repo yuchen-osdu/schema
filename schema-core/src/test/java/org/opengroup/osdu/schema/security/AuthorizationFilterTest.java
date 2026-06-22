@@ -1,14 +1,12 @@
 package org.opengroup.osdu.schema.security;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -23,9 +21,13 @@ import org.opengroup.osdu.core.common.model.http.DpsHeaders;
 import org.opengroup.osdu.schema.constants.SchemaConstants;
 import org.opengroup.osdu.schema.exceptions.BadRequestException;
 import org.opengroup.osdu.schema.exceptions.UnauthorizedException;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class AuthorizationFilterTest {
 
     @Mock
@@ -46,80 +48,66 @@ public class AuthorizationFilterTest {
     @InjectMocks
     AuthorizationFilter authorizationFilter;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
     @Test
     public void testHasRole_UnAuthorozed() throws BadRequestException, EntitlementsException {
-
-        expectedException.expect(UnauthorizedException.class);
-        expectedException.expectMessage(SchemaConstants.UNAUTHORIZED_EXCEPTION);
-
         Mockito.when(headers.getAuthorization()).thenReturn("test");
         Mockito.when(headers.getPartitionId()).thenReturn("test");
         Mockito.when(entitlementsFactory.create(headers)).thenReturn(en);
         Mockito.when(en.getGroups()).thenReturn(groups);
 
-        authorizationFilter.hasRole("service.schema.admins");
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class,
+                () -> authorizationFilter.hasRole("service.schema.admins"));
+        assertEquals(SchemaConstants.UNAUTHORIZED_EXCEPTION, exception.getMessage());
     }
 
     @Test
     public void testHasRole_EntitlementException_BadRequest() throws BadRequestException, EntitlementsException {
-
-        expectedException.expect(BadRequestException.class);
-        expectedException.expectMessage(SchemaConstants.BAD_INPUT);
-
         Mockito.when(headers.getAuthorization()).thenReturn("test");
         Mockito.when(headers.getPartitionId()).thenReturn("test");
         Mockito.when(entitlementsFactory.create(headers)).thenReturn(en);
         Mockito.when(en.getGroups()).thenThrow(
                 new EntitlementsException("Invalid token", new HttpResponse(null, null, null, 400, null, null, 0L)));
 
-        authorizationFilter.hasRole("service.schema.admins");
+        BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> authorizationFilter.hasRole("service.schema.admins"));
+        assertEquals(SchemaConstants.BAD_INPUT, exception.getMessage());
     }
 
     @Test
     public void testHasRole_EntitlementException_UnAuthenticated() throws BadRequestException, EntitlementsException {
-
-        expectedException.expect(UnauthorizedException.class);
-        expectedException.expectMessage(SchemaConstants.UNAUTHORIZED_EXCEPTION);
-
         Mockito.when(headers.getAuthorization()).thenReturn("test");
         Mockito.when(headers.getPartitionId()).thenReturn("test");
         Mockito.when(entitlementsFactory.create(headers)).thenReturn(en);
         Mockito.when(en.getGroups()).thenThrow(
                 new EntitlementsException("Invalid token", new HttpResponse(null, null, null, 403, null, null, 0L)));
 
-        authorizationFilter.hasRole("service.schema.admins");
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class,
+                () -> authorizationFilter.hasRole("service.schema.admins"));
+        assertEquals(SchemaConstants.UNAUTHORIZED_EXCEPTION, exception.getMessage());
     }
 
     @Test
     public void testHasRole_EntitlementException_UnAuthorized() throws BadRequestException, EntitlementsException {
-
-        expectedException.expect(UnauthorizedException.class);
-        expectedException.expectMessage(SchemaConstants.UNAUTHORIZED_EXCEPTION);
-
         Mockito.when(headers.getAuthorization()).thenReturn("test");
         Mockito.when(headers.getPartitionId()).thenReturn("test");
         Mockito.when(entitlementsFactory.create(headers)).thenReturn(en);
         Mockito.when(en.getGroups()).thenThrow(
                 new EntitlementsException("Invalid token", new HttpResponse(null, null, null, 401, null, null, 0L)));
 
-        authorizationFilter.hasRole("service.schema.admins");
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class,
+                () -> authorizationFilter.hasRole("service.schema.admins"));
+        assertEquals(SchemaConstants.UNAUTHORIZED_EXCEPTION, exception.getMessage());
     }
 
     @Test
     public void testHasRole_EntitlementException_Runtime() throws BadRequestException, EntitlementsException {
-
-        expectedException.expect(RuntimeException.class);
-
         Mockito.when(headers.getAuthorization()).thenReturn("test");
         Mockito.when(headers.getPartitionId()).thenReturn("test");
         Mockito.when(entitlementsFactory.create(headers)).thenReturn(en);
         Mockito.when(en.getGroups()).thenThrow(
                 new EntitlementsException("Invalid token", new HttpResponse(null, null, null, 500, null, null, 0L)));
 
-        authorizationFilter.hasRole("service.schema.admins");
+        assertThrows(RuntimeException.class, () -> authorizationFilter.hasRole("service.schema.admins"));
     }
 
     @Test
@@ -138,24 +126,20 @@ public class AuthorizationFilterTest {
 
     @Test
     public void testHasRole_NoAuthorization_header() throws BadRequestException, EntitlementsException {
-
-        expectedException.expect(UnauthorizedException.class);
-        expectedException.expectMessage("Authorization header is mandatory");
-
         Mockito.when(headers.getPartitionId()).thenReturn("test");
-        authorizationFilter.hasRole("service.schema.admins");
 
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class,
+                () -> authorizationFilter.hasRole("service.schema.admins"));
+        assertEquals("Authorization header is mandatory", exception.getMessage());
     }
 
     @Test
     public void testHasRole_NoPartition_header() throws BadRequestException, EntitlementsException {
-
-        expectedException.expect(UnauthorizedException.class);
-        expectedException.expectMessage("data-partition-id header is mandatory");
-
         Mockito.when(headers.getAuthorization()).thenReturn("test");
-        authorizationFilter.hasRole("service.schema.admins");
 
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class,
+                () -> authorizationFilter.hasRole("service.schema.admins"));
+        assertEquals("data-partition-id header is mandatory", exception.getMessage());
     }
 
     private Groups getMockGrooups() {

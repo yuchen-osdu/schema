@@ -33,9 +33,13 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
 			<groupId>org.opengroup.osdu</groupId>
 			<artifactId>os-core-common</artifactId>
-			<version>${os-core-common.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.opengroup.osdu</groupId>
@@ -68,8 +72,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
-			<version>1.10.19</version>
+			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -131,7 +134,7 @@
 		<dependency>
 			<groupId>org.opengroup.osdu</groupId>
 			<artifactId>os-obm-core</artifactId>
-			<version>0.30.0</version>
+			<version>0.30.5</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.opengroup.osdu</groupId>
@@ -190,10 +193,10 @@
 					</execution>
 				</executions>
 			</plugin>
-            <plugin>
+			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.14</version>
+				<version>${jacoco.version}</version>
 				<executions>
 					<execution>
 						<goals>

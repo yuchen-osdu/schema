@@ -26,6 +26,7 @@ public class SchemaInfo {
 
 	@NotNull(message = "schemaIdentity must not be null")
 	@Valid
+	@Schema(description = "Schema identity information including authority, source, entity type and version")
 	private SchemaIdentity schemaIdentity;
 
 	@Schema(description = "The user who created the schema. This value is taken from API caller token.", example = "user@opendes.com")
@@ -35,12 +36,15 @@ public class SchemaInfo {
 	private Date dateCreated;
 
 	@NotNull(message = "status must not be null")
+	@Schema(description = "Schema lifecycle status", example = "PUBLISHED")
 	private SchemaStatus status;
 
+	@Schema(description = "Schema visibility — INTERNAL (partition-scoped) or SHARED (platform-wide). System-assigned based on the partition-id.", example = "INTERNAL")
 	private SchemaScope scope;
 
 	@JsonInclude(Include.NON_NULL)
 	@Valid
+	@Schema(description = "The schema identity of the schema that supersedes this one. Present only when this schema has been superseded.")
 	private SchemaIdentity supersededBy;
 
 }

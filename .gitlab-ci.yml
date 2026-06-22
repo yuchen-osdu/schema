@@ -1,4 +1,6 @@
 variables:
+  CORE_BUILD_SUBDIR: schema-core
+
   GCP_BUILD_SUBDIR: provider/schema-gc
   GCP_INT_TEST_SUBDIR: testing/schema-test-gc
   GCP_APPLICATION_NAME: os-schema
@@ -97,7 +99,7 @@ download_plugins:
     OSM_PACKAGE_REGISTRY_URL: "https://community.opengroup.org/api/v4/projects/1448/packages/maven"
     OSM_VERSION: "0.27.3"
     OBM_PACKAGE_REGISTRY_URL: "https://community.opengroup.org/api/v4/projects/1441/packages/maven"
-    OBM_VERSION: "0.30.1"
+    OBM_VERSION: "0.30.6"
     OQM_PACKAGE_REGISRTY_URL: "https://community.opengroup.org/api/v4/projects/1450/packages/maven"
     OQM_VERSION: "0.27.2"
 

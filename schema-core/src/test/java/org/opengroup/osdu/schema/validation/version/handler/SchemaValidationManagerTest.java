@@ -1,15 +1,16 @@
 package org.opengroup.osdu.schema.validation.version.handler;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -21,13 +22,17 @@ import org.opengroup.osdu.schema.validation.version.handler.common.AdditionalPro
 import org.opengroup.osdu.schema.validation.version.model.SchemaBreakingChanges;
 import org.opengroup.osdu.schema.validation.version.model.SchemaHandlerVO;
 import org.opengroup.osdu.schema.validation.version.model.SchemaPatch;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class SchemaValidationManagerTest {
 
 	@Mock
@@ -60,7 +65,7 @@ public class SchemaValidationManagerTest {
 				schemaBreakingChanges.add(new SchemaBreakingChanges(patchList.get(0), "breaking changes found"));
 				return null;
 			}})
-		.when(spyHandler).compare( Mockito.anyObject(),  Mockito.anyObject(),  Mockito.anyObject(), Mockito.anyObject());
+		.when(spyHandler).compare( ArgumentMatchers.any(),  ArgumentMatchers.any(),  ArgumentMatchers.any(), ArgumentMatchers.any());
 
 		schemaValidationManager.initiateValidationProcess(schHandlerVO, schemaBreakingChanges);
 		assertEquals(schemaBreakingChanges.size(), 1);
@@ -77,7 +82,7 @@ public class SchemaValidationManagerTest {
 
 		Mockito.when(handlers.getFirstHandler()).thenReturn(spyHandler);
 		Mockito.when(jsonUtil.findJSONDiff(Mockito.any(JsonNode.class), Mockito.any(JsonNode.class))).thenReturn(patchList);
-		Mockito.doNothing().when(spyHandler).compare( Mockito.anyObject(),  Mockito.anyObject(),  Mockito.anyObject(), Mockito.anyObject());
+		Mockito.doNothing().when(spyHandler).compare( ArgumentMatchers.any(),  ArgumentMatchers.any(),  ArgumentMatchers.any(), ArgumentMatchers.any());
 
 		schemaValidationManager.initiateValidationProcess(schHandlerVO, schemaBreakingChanges);
 		assertEquals(schemaBreakingChanges.size(), 0);
@@ -103,13 +108,14 @@ public class SchemaValidationManagerTest {
 		return newSchemaDiff;
 	}
 
-	@Test(expected = ApplicationException.class)
-	public void testInitiateValidationProcess_Exception() throws ApplicationException, IOException {
+	@Test
+	public void testInitiateValidationProcess_Exception() throws IOException {
 		List<SchemaBreakingChanges> schemaBreakingChanges = new ArrayList<>();
 		Mockito.when(handlers.getFirstHandler()).thenReturn( new AdditionalPropertiesHandler() );
 		Mockito.when(jsonUtil.findJSONDiff(Mockito.any(JsonNode.class), Mockito.any(JsonNode.class))).thenThrow(JsonProcessingException.class);
 
-		schemaValidationManager.initiateValidationProcess(getEmptySchemaHandlerVO(), schemaBreakingChanges);
+		assertThrows(ApplicationException.class,
+				() -> schemaValidationManager.initiateValidationProcess(getEmptySchemaHandlerVO(), schemaBreakingChanges));
 	}
 
 }

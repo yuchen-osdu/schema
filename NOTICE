@@ -265,7 +265,7 @@ The following software have components provided under the terms of this license:
 - botocore (from <https://github.com/boto/botocore>, https://github.com/boto/botocore)
 - datastore-v1-proto-client (from https://github.com/googleapis/google-cloud-java, https://repo1.maven.org/maven2/com/google/cloud/datastore/datastore-v1-proto-client)
 - error-prone annotations (from https://errorprone.info/, https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations)
-- google-auth (from https://github.com/GoogleCloudPlatform/google-auth-library-python, https://github.com/googleapis/google-auth-library-python)
+- google-auth (from https://github.com/GoogleCloudPlatform/google-auth-library-python, https://github.com/googleapis/google-auth-library-python, https://github.com/googleapis/google-cloud-python/tree/main/packages/google-auth)
 - grpc-google-cloud-datastore-admin-v1 (from https://github.com/googleapis/google-cloud-java)
 - io.grpc:grpc-alts (from https://github.com/grpc/grpc-java)
 - io.grpc:grpc-api (from https://github.com/grpc/grpc-java)
@@ -654,7 +654,6 @@ cc-pd
 The following software have components provided under the terms of this license:
 
 - Guava: Google Core Libraries for Java (from http://code.google.com/p/guava-libraries, https://github.com/google/guava, https://repo1.maven.org/maven2/com/google/guava/guava)
-- Netty/Codec (from http://netty.io/, https://repo1.maven.org/maven2/io/netty/netty-codec)
 - Netty/Codec/Base (from https://netty.io/)
 
 ========================================================================

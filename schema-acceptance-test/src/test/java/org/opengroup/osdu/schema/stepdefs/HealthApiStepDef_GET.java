@@ -17,16 +17,15 @@
 
 package org.opengroup.osdu.schema.stepdefs;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.Map;
+
 import com.google.inject.Inject;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
-import org.opengroup.osdu.schema.constants.TestConstants;
-import org.opengroup.osdu.schema.stepdefs.model.HttpRequest;
-import org.opengroup.osdu.schema.stepdefs.model.HttpResponse;
 import org.opengroup.osdu.schema.stepdefs.model.SchemaServiceScope;
-import org.opengroup.osdu.schema.util.HttpClientFactory;
-
-import static org.junit.Assert.assertEquals;
+import org.opengroup.osdu.schema.util.SchemaClientExceptionSupport;
 
 public class HealthApiStepDef_GET {
 
@@ -34,17 +33,14 @@ public class HealthApiStepDef_GET {
 
   @Given("I send get request without a token to liveness check endpoint")
   public void i_send_get_request_to_liveness_check_endpoint() {
-    HttpRequest httpRequest =
-        HttpRequest.builder()
-            .url(TestConstants.HOST + TestConstants.GET_LIVENESS_ENDPOINT)
-            .httpMethod(HttpRequest.GET)
-            .build();
-    HttpResponse response = HttpClientFactory.getInstance().send(httpRequest);
-    this.context.setHttpResponse(response);
+    SchemaClientExceptionSupport.tryRun(context, () -> {
+      int statusCode = context.getSchemaClient().livenessCheck(Map.of()).statusCode();
+      context.setLastStatusCode(statusCode);
+    });
   }
 
   @Then("service should respond back with 200 in response")
   public void service_should_respond_back_with_200_in_response() {
-    assertEquals(200, this.context.getHttpResponse().getCode());
+    assertEquals(200, context.getLastStatusCode());
   }
 }

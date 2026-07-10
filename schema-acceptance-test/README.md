@@ -2,34 +2,34 @@
 
 You will need to have the following environment variables defined.
 
-| name             | value                                          | description                              | sensitive? | source | required |
-|------------------|------------------------------------------------|------------------------------------------|------------|--------|----------|
-| `HOST`           | ex `http://localhost:8080/api/schema-service/v1/` | Schema service URL                    | no         | -      | yes      |
-| `PRIVATE_TENANT1`| ex `opendes`                                   | OSDU tenant used for testing             | no         | -      | yes      |
-| `PRIVATE_TENANT2`| ex `opendes`                                   | Alternative OSDU tenant for testing      | no         | -      | no       |
-| `SHARED_TENANT`  | ex `system`                                    | Shared tenant name                       | no         | -      | no       |
-| `VENDOR`         | ex `azure`                                     | Cloud vendor identifier                  | no         | -      | no       |
+| name              | value                                              | description                                      | sensitive? | source | required |
+|-------------------|----------------------------------------------------|--------------------------------------------------|------------|--------|----------|
+| `HOST`            | ex `http://localhost:8080`                         | Schema service base URL (no trailing slash)      | no         | -      | yes      |
+| `DATA_PARTITION_ID` | ex `opendes`                                     | Default data partition for tests                 | no         | -      | yes      |
+| `PRIVATE_TENANT1` | ex `opendes`                                       | OSDU tenant used for testing                     | no         | -      | yes      |
+| `PRIVATE_TENANT2` | ex `opendes`                                       | Alternative OSDU tenant for testing              | no         | -      | no       |
+| `SHARED_TENANT`   | ex `system`                                        | Shared/system tenant partition                   | no         | -      | no       |
 
 Authentication can be provided as OIDC config:
 
-| name                                            | value                                      | description                                 | sensitive? | source |
-|-------------------------------------------------|--------------------------------------------|---------------------------------------------|------------|--------|
-| `ROOT_USER_OPENID_PROVIDER_CLIENT_ID`           | `********`                                 | Root User Client Id                         | yes        | -      |
-| `ROOT_USER_OPENID_PROVIDER_CLIENT_SECRET`       | `********`                                 | Root User Client secret                     | yes        | -      |
-| `TEST_OPENID_PROVIDER_URL`                      | ex `https://keycloak.com/auth/realms/osdu` | OpenID provider url                         | yes        | -      |
-| `ROOT_USER_OPENID_PROVIDER_SCOPE`               | ex `api://my-app/.default`                 | OAuth2 scope (optional, defaults to openid) | no         | -      |
+| name                                                   | value                                      | description                                          | sensitive? | source |
+|--------------------------------------------------------|--------------------------------------------|------------------------------------------------------|------------|--------|
+| `TEST_OPENID_PROVIDER_URL`                             | ex `https://keycloak.com/auth/realms/osdu` | OpenID provider discovery URL (shared across users)  | yes        | -      |
+| `PRIVILEGED_USER_OPENID_PROVIDER_CLIENT_ID`            | `********`                                 | OIDC client ID for the privileged test user          | yes        | -      |
+| `PRIVILEGED_USER_OPENID_PROVIDER_CLIENT_SECRET`        | `********`                                 | OIDC client secret for the privileged test user      | yes        | -      |
+| `PRIVILEGED_USER_OPENID_PROVIDER_SCOPE`                | ex `api://my-app/.default`                 | OAuth2 scope (optional, defaults to `openid`)        | no         | -      |
 
-Or tokens can be used directly from env variables:
+Or a pre-configured bearer token can be used directly:
 
-| name              | value      | description     | sensitive? | source |
-|-------------------|------------|-----------------|------------|--------|
-| `ROOT_USER_TOKEN` | `********` | Root User Token | yes        | -      |
+| name                    | value      | description                                           | sensitive? | source |
+|-------------------------|------------|-------------------------------------------------------|------------|--------|
+| `PRIVILEGED_USER_TOKEN` | `********` | Bearer token for the privileged test user (optional)  | yes        | -      |
 
-Authentication configuration is optional and could be omitted if not needed.
+When `PRIVILEGED_USER_TOKEN` is set it is used as-is and OIDC variables are ignored.
 
 **Entitlements configuration for integration accounts**
 
-| ROOT_USER                           |
+| PRIVILEGED_USER                     |
 |-------------------------------------|
 | users                               |
 | service.schema-service.system-admin |
@@ -39,14 +39,21 @@ Authentication configuration is optional and could be omitted if not needed.
 | data.integration.test               |
 | data.test1                          |
 
-Execute following command to build code and run all the integration tests:
+**Test execution phases**
 
- ```bash
- # Note: this assumes that the environment variables for integration tests as outlined
- #       above are already exported in your environment.
- # build + install integration test core
- $ (cd schema-acceptance-test && mvn clean verify)
- ```
+Tests are executed in three Maven Failsafe phases:
+
+1. `pre-integration-test` — runs `PreIntegrationTestsRunner` (`@Startup` tag): verifies the service `/info` endpoint is reachable before any test data is created
+2. `integration-test` — runs `SchemaServiceTestsRunner` (`@SchemaService` tag): all schema CRUD acceptance tests
+3. `post-integration-test` — runs `TearDownTestsRunner` (`@TearDown` tag): teardown after the test run
+
+Execute the following command to build and run all acceptance tests:
+
+```bash
+# Note: this assumes that the environment variables for integration tests as outlined
+#       above are already exported in your environment.
+cd schema-acceptance-test && mvn clean verify
+```
 
 ## License
 

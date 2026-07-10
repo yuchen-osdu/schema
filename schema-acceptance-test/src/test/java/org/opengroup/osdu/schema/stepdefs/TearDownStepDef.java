@@ -1,6 +1,6 @@
 /*
- * Copyright 2021 Google LLC
- * Copyright 2021 EPAM Systems, Inc
+ * Copyright 2020-2024 Google LLC
+ * Copyright 2020-2024 EPAM Systems, Inc
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,12 @@
 
 package org.opengroup.osdu.schema.stepdefs;
 
-import org.opengroup.osdu.core.test.auth.UserType;
-import org.opengroup.osdu.core.test.cucumber.BaseGetInfoCucumberAcceptanceTests;
-import org.opengroup.osdu.core.test.service.ServiceType;
+import io.cucumber.java.en.Given;
 
-import java.util.List;
+public class TearDownStepDef {
 
-public class InfoStepDef_GET extends BaseGetInfoCucumberAcceptanceTests {
-
-  public InfoStepDef_GET() {
-    super(UserType.PRIVILEGED_USER, ServiceType.SCHEMA_V1, List.of());
+  @Given("the schema acceptance test run has completed")
+  public void teardownComplete() {
+    // Intentional no-op — cleanup is handled by SchemaScenarioSetup.@After
   }
 }

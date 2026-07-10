@@ -1,5 +1,7 @@
 package org.opengroup.osdu.schema.constants;
 
+import org.opengroup.osdu.core.test.config.EnvLoader;
+
 public class TestConstants {
     public static final String FORWARD_SLASH = "/";
     public static final String PUT_ENDPOINT = "/api/schema-service/v1/schema";
@@ -34,11 +36,6 @@ public class TestConstants {
     public static final String STATUS = "status";
     public static final String ALREADY_EXISTS = "ALREADY_EXISTS";
     public static final String DATAECOSYSTEM = "dataecosystem";
-    public static final String AUTHORIZATION = "authorization";
-    public static final String DATA_PARTITION_ID = "data-partition-id";
-    public static final String BEARER = "Bearer ";
-    public static final String CONTENT_TYPE = "Content-Type";
-    public static final String JSON_CONTENT = "application/json";
     public static final String schemaIdOfInputPayload = "schemaInfo.schemaIdentity.id";
     public static final String SCHEMA_IDENTITY = "schemaIdentity";
     public static final String ENTITY = "entityType";
@@ -54,8 +51,8 @@ public class TestConstants {
     public static final String STORAGE_SCHEMA_USER_EMAIL = "testUserEmail@test.com";
     public static final String KIND = "kind";
     public static final String TRUE = "true";
-    public static final String HOST = System.getProperty("HOST", System.getenv("HOST"));
-    public static final String PRIVATE_TENANT1 = System.getProperty("PRIVATE_TENANT1", System.getenv("PRIVATE_TENANT1"));
-    public static final String PRIVATE_TENANT2 = System.getProperty("PRIVATE_TENANT2", System.getenv("PRIVATE_TENANT2"));
-    public static final String SHARED_TENANT = System.getProperty("SHARED_TENANT", System.getenv("SHARED_TENANT"));    
+    public static String host() { return EnvLoader.getHost(); }
+    public static String privateTenant1() { return EnvLoader.get("PRIVATE_TENANT1"); }
+    public static String privateTenant2() { return EnvLoader.get("PRIVATE_TENANT2"); }
+    public static String sharedTenant() { return EnvLoader.get("SHARED_TENANT"); }
 }

@@ -22,11 +22,8 @@ import static org.junit.Assert.assertEquals;
 import com.google.inject.Inject;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
-import org.opengroup.osdu.schema.constants.TestConstants;
-import org.opengroup.osdu.schema.stepdefs.model.HttpRequest;
-import org.opengroup.osdu.schema.stepdefs.model.HttpResponse;
 import org.opengroup.osdu.schema.stepdefs.model.SchemaServiceScope;
-import org.opengroup.osdu.schema.util.HttpClientFactory;
+import org.opengroup.osdu.schema.util.SchemaClientExceptionSupport;
 
 public class SwaggerStepDef_GET {
 
@@ -35,33 +32,27 @@ public class SwaggerStepDef_GET {
 
   @Given("I send get request without a token to swagger ui endpoint")
   public void i_send_get_request_to_swagger_ui_endpoint() {
-    HttpRequest httpRequest =
-        HttpRequest.builder()
-            .url(TestConstants.HOST + TestConstants.GET_SWAGGER_ENDPOINT)
-            .httpMethod(HttpRequest.GET)
-            .build();
-    HttpResponse response = HttpClientFactory.getInstance().send(httpRequest);
-    this.context.setHttpResponse(response);
+    SchemaClientExceptionSupport.tryRun(context, () -> {
+      int statusCode = context.getSchemaClient().getSwagger().statusCode();
+      context.setLastStatusCode(statusCode);
+    });
   }
 
   @Then("service should respond back with 200 for swagger ui")
   public void service_should_respond_back_with_200_for_swagger_ui() {
-    assertEquals(200, this.context.getHttpResponse().getCode());
+    assertEquals(200, context.getLastStatusCode());
   }
 
   @Given("I send get request without a token to swagger api docs endpoint")
   public void i_send_get_request_to_swagger_api_docs_endpoint() {
-    HttpRequest httpRequest =
-        HttpRequest.builder()
-            .url(TestConstants.HOST + TestConstants.GET_API_DOCS_ENDPOINT)
-            .httpMethod(HttpRequest.GET)
-            .build();
-    HttpResponse response = HttpClientFactory.getInstance().send(httpRequest);
-    this.context.setHttpResponse(response);
+    SchemaClientExceptionSupport.tryRun(context, () -> {
+      int statusCode = context.getSchemaClient().getApiDocs().statusCode();
+      context.setLastStatusCode(statusCode);
+    });
   }
 
   @Then("service should respond back with 200 for swagger api docs")
   public void service_should_respond_back_with_200_for_swagger_api_docs() {
-    assertEquals(200, this.context.getHttpResponse().getCode());
+    assertEquals(200, context.getLastStatusCode());
   }
 }

@@ -23,7 +23,7 @@ import org.opengroup.osdu.schema.model.EntityType;
 class EntityTypeDocTest {
 	
 	@Test
-	public void constructor_Success() {
+	void constructor_Success() {
 		// Arrange
 		String id = "test-id";
 		String dataPartitionId = "test-partition";
@@ -40,7 +40,7 @@ class EntityTypeDocTest {
 	}
 	
 	@Test
-	public void gettersAndSetters_Success() {
+	void gettersAndSetters_Success() {
 		// Arrange
 		EntityTypeDoc doc = new EntityTypeDoc();
 		String id = "test-id";

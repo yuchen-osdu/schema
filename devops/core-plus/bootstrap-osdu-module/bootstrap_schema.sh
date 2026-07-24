@@ -21,6 +21,30 @@ fail() {
   exit 1
 }
 
+wait_for_schema() {
+  log "Waiting for Schema service to become reachable..."
+
+  local max_retries=60
+  local delay=3
+
+  for ((i=1; i<=max_retries; i++)); do
+    local status_code
+    status_code=$(curl --location --request GET "${SCHEMA_URL}/api/schema-service/v1/info" \
+      --write-out "%{http_code}" --silent --output /dev/null \
+      --connect-timeout 5 --max-time 15)
+
+    if [ "$status_code" == 200 ]; then
+      log "Schema service is reachable"
+      return 0
+    fi
+
+    log "Schema service not reachable yet (HTTP ${status_code}, $i/$max_retries)..."
+    sleep "$delay"
+  done
+
+  fail "Schema service did not become reachable in time"
+}
+
 wait_for_entitlements() {
   log "Waiting for Entitlements service to become reachable..."
 
@@ -88,6 +112,7 @@ export ACCESS_TOKEN
 export BEARER_TOKEN="Bearer ${ACCESS_TOKEN}"
 
 wait_for_entitlements
+wait_for_schema
 
 bootstrap_schema_deploy_shared_schemas
 

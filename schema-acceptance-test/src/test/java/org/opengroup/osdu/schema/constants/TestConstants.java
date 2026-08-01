@@ -52,7 +52,6 @@ public class TestConstants {
     public static final String KIND = "kind";
     public static final String TRUE = "true";
     public static String host() { return EnvLoader.getHost(); }
-    public static String privateTenant1() { return EnvLoader.get("PRIVATE_TENANT1"); }
-    public static String privateTenant2() { return EnvLoader.get("PRIVATE_TENANT2"); }
+    public static String dataPartitionId() { return EnvLoader.get("DATA_PARTITION_ID"); }
     public static String sharedTenant() { return EnvLoader.get("SHARED_TENANT"); }
 }

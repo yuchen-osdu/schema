@@ -48,6 +48,10 @@ gc-bootstrap:
     - export APP_KEY=""
     - python3 deployments/scripts/DeploySharedSchemas.py -e -u "${SCHEMA_URL}"/api/schema-service/v1/schemas/system
   rules:
+    - if: "$CI_COMMIT_BRANCH =~ /^release/"
+      when: never
+    - if: "$CI_COMMIT_TAG"
+      when: never
     - if: '$GC == "1"'
       when: on_success
 
@@ -59,6 +63,10 @@ gc-deploy-and-bootstrap:
     GC_HELM_SETS: "--set data.bootstrapEnabled=true"
     GC_ENABLE_BOOTSTRAP: "true"
   rules:
+    - if: "$CI_COMMIT_BRANCH =~ /^release/"
+      when: never
+    - if: "$CI_COMMIT_TAG"
+      when: never
     - if: '$GC == "1"'
       when: on_success
 

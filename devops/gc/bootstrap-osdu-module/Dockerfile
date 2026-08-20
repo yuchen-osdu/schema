@@ -17,4 +17,4 @@ RUN chown -R 10001:10001 /opt
 
 USER 10001:10001
 
-CMD ["/bin/bash", "-c", "/opt/bootstrap_schema.sh && sleep 365d"]
+CMD ["/bin/bash", "-c", "/opt/bootstrap_schema.sh"]

@@ -6,8 +6,7 @@ public class TenantResolver {
 
     public static String resolveTenant(String tenant) {
         return switch (tenant) {
-            case "TENANT1" -> TestConstants.privateTenant1();
-            case "TENANT2" -> TestConstants.privateTenant2();
+            case "TENANT1" -> TestConstants.dataPartitionId();
             case "COMMON"  -> TestConstants.sharedTenant();
             default        -> tenant;
         };

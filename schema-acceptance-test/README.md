@@ -6,8 +6,6 @@ You will need to have the following environment variables defined.
 |-------------------|----------------------------------------------------|--------------------------------------------------|------------|--------|----------|
 | `HOST`            | ex `http://localhost:8080`                         | Schema service base URL (no trailing slash)      | no         | -      | yes      |
 | `DATA_PARTITION_ID` | ex `opendes`                                     | Default data partition for tests                 | no         | -      | yes      |
-| `PRIVATE_TENANT1` | ex `opendes`                                       | OSDU tenant used for testing                     | no         | -      | yes      |
-| `PRIVATE_TENANT2` | ex `opendes`                                       | Alternative OSDU tenant for testing              | no         | -      | no       |
 | `SHARED_TENANT`   | ex `system`                                        | Shared/system tenant partition                   | no         | -      | no       |
 
 Authentication can be provided as OIDC config:

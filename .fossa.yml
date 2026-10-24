@@ -20,10 +20,6 @@ analyze:
       type: mvn
       target: schema-core-plus/pom.xml
       path: .
-    - name: os-schema-aws
-      type: mvn
-      target: provider/schema-aws/pom.xml
-      path: .
     - name: os-schema-gc
       type: mvn
       target: provider/schema-gc/pom.xml
@@ -31,10 +27,6 @@ analyze:
     - name: os-schema-ibm
       type: mvn
       target: provider/schema-ibm/pom.xml
-      path: .
-    - name: os-schema-azure
-      type: mvn
-      target: provider/schema-azure/pom.xml
       path: .
     - name: google
       type: pip
@@ -48,11 +40,3 @@ analyze:
       type: pip
       target: deployments/scripts
       path: deployments/scripts
-    - name: aws
-      type: pip
-      target: deployments/scripts/aws
-      path: deployments/scripts/aws
-    - name: azure
-      type: pip
-      target: deployments/scripts/azure
-      path: deployments/scripts/azure

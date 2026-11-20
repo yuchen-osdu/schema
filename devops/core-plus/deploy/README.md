@@ -39,7 +39,7 @@ First you need to set variables in **values.yaml** file using any code editor. S
 | Name | Description | Type | Default |Required |
 |------|-------------|------|---------|---------|
 **data.entitlementsHost** | entitlements host | string | "http://entitlements" | yes
-**data.javaOptions** | java options | string | "-Xms512M -Xmx1024M -XX:+UseG1GC -XX:+UseStringDeduplication -XX:InitiatingHeapOccupancyPercent=45" | yes
+**data.javaOptions** | java options | string | "-Xms512M -XX:MaxRAMPercentage=70 -XX:+UseG1GC -XX:+UseStringDeduplication -XX:InitiatingHeapOccupancyPercent=45" | yes
 **data.logLevel** | logging level | string | ERROR | yes
 **data.partitionHost** | partition host | string | "http://partition" | yes
 **data.schemaTopicName** | topic for schema changes events | string | "schema-changed" | yes

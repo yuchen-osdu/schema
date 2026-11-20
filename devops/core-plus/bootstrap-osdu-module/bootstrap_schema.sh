@@ -10,56 +10,113 @@
 # - OPENID_PROVIDER_CLIENT_ID
 # - OPENID_PROVIDER_CLIENT_SECRET
 
-set -e
+set -euo pipefail
 
-source ./validate-env.sh "DATA_PARTITION"
-source ./validate-env.sh "SCHEMA_URL"
-source ./validate-env.sh "ENTITLEMENTS_HOST"
-
-bootstrap_schema_gettoken_onprem() {
-
-  ID_TOKEN="$(curl --location --request POST "${OPENID_PROVIDER_URL}/protocol/openid-connect/token" \
-  --header "Content-Type: application/x-www-form-urlencoded" \
-  --data-urlencode "grant_type=client_credentials" \
-  --data-urlencode "scope=openid" \
-  --data-urlencode "client_id=${OPENID_PROVIDER_CLIENT_ID}" \
-  --data-urlencode "client_secret=${OPENID_PROVIDER_CLIENT_SECRET}" | jq -r ".id_token")"
-
-  export BEARER_TOKEN="Bearer ${ID_TOKEN}"
+log() {
+  echo "[$(date -Iseconds)] $*"
 }
 
-bootstrap_schema_prechek_env() {
+fail() {
+  echo "[$(date -Iseconds)] ERROR: $*" >&2
+  exit 1
+}
 
-  status_code=$(curl --retry 1 --location -globoff --request GET "${ENTITLEMENTS_HOST}/api/entitlements/v2/groups" \
-  --write-out "%{http_code}" --silent --output "/dev/null" \
-  --header 'Content-Type: application/json' \
-  --header "data-partition-id: ${DATA_PARTITION}" \
-  --header "Authorization: ${BEARER_TOKEN}")
+wait_for_schema() {
+  log "Waiting for Schema service to become reachable..."
 
-  if [ "$status_code" == 200 ]
-  then
-    echo "$status_code: Entitlements provisioning completed successfully!"
-  else
-    echo "$status_code: Entitlements provisioning is in progress or failed!"
-    exit 1
-  fi
+  local max_retries=60
+  local delay=3
+
+  for ((i=1; i<=max_retries; i++)); do
+    local status_code
+    status_code=$(curl --location --request GET "${SCHEMA_URL}/api/schema-service/v1/info" \
+      --write-out "%{http_code}" --silent --output /dev/null \
+      --connect-timeout 5 --max-time 15)
+
+    if [ "$status_code" == 200 ]; then
+      log "Schema service is reachable"
+      return 0
+    fi
+
+    log "Schema service not reachable yet (HTTP ${status_code}, $i/$max_retries)..."
+    sleep "$delay"
+  done
+
+  fail "Schema service did not become reachable in time"
+}
+
+wait_for_entitlements() {
+  log "Waiting for Entitlements service to become reachable..."
+
+  local max_retries=60
+  local delay=3
+
+  for ((i=1; i<=max_retries; i++)); do
+    local status_code
+    status_code=$(curl --location --request GET "${ENTITLEMENTS_HOST}/api/entitlements/v2/groups" \
+      --write-out "%{http_code}" --silent --output /dev/null \
+      --connect-timeout 5 --max-time 15 \
+      --header 'Content-Type: application/json' \
+      --header "data-partition-id: ${DATA_PARTITION}" \
+      --header "Authorization: Bearer ${ACCESS_TOKEN}")
+
+    if [ "$status_code" == 200 ]; then
+      log "Entitlements provisioning completed successfully"
+      sleep 5
+      return 0
+    fi
+
+    log "Entitlements not reachable yet (HTTP ${status_code}, $i/$max_retries)..."
+    sleep "$delay"
+  done
+
+  fail "Entitlements did not become reachable in time"
+}
+
+get_access_token() {
+  log "Requesting access token from Keycloak..." >&2
+
+  local token
+  token=$(curl -s --location \
+    --connect-timeout 5 --max-time 15 \
+    "${OPENID_PROVIDER_URL}/protocol/openid-connect/token" \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    --data-urlencode "grant_type=client_credentials" \
+    --data-urlencode "scope=openid" \
+    --data-urlencode "client_id=${OPENID_PROVIDER_CLIENT_ID}" \
+    --data-urlencode "client_secret=${OPENID_PROVIDER_CLIENT_SECRET}" \
+    | jq -r ".access_token")
+
+  [[ -z "$token" || "$token" == "null" ]] && fail "Failed to obtain access token"
+
+  echo "$token"
 }
 
 bootstrap_schema_deploy_shared_schemas() {
   python3 ./scripts/DeploySharedSchemas.py -e -u "${SCHEMA_URL}"/api/schema-service/v1/schemas/system
 }
 
-source ./validate-env.sh "OPENID_PROVIDER_URL"
-source ./validate-env.sh "OPENID_PROVIDER_CLIENT_ID"
-source ./validate-env.sh "OPENID_PROVIDER_CLIENT_SECRET"
+# --- MAIN ---
 
-# Get credentials for onprem
-bootstrap_schema_gettoken_onprem
+: "${DATA_PARTITION:?missing}"
+: "${SCHEMA_URL:?missing}"
+: "${ENTITLEMENTS_HOST:?missing}"
+: "${OPENID_PROVIDER_URL:?missing}"
+: "${OPENID_PROVIDER_CLIENT_ID:?missing}"
+: "${OPENID_PROVIDER_CLIENT_SECRET:?missing}"
 
-# Precheck entitlements
-bootstrap_schema_prechek_env
+log "Starting schema bootstrap..."
 
-# Deploy shared schemas
+ACCESS_TOKEN=$(get_access_token)
+export ACCESS_TOKEN
+export BEARER_TOKEN="Bearer ${ACCESS_TOKEN}"
+
+wait_for_entitlements
+wait_for_schema
+
 bootstrap_schema_deploy_shared_schemas
 
 touch /tmp/bootstrap_ready
+log "Bootstrap finished successfully"
+
+sleep infinity

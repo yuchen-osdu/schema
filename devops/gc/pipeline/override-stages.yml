@@ -48,6 +48,10 @@ gc-bootstrap:
     - export APP_KEY=""
     - python3 deployments/scripts/DeploySharedSchemas.py -e -u "${SCHEMA_URL}"/api/schema-service/v1/schemas/system
   rules:
+    - if: "$CI_COMMIT_BRANCH =~ /^release/"
+      when: never
+    - if: "$CI_COMMIT_TAG"
+      when: never
     - if: '$GC == "1"'
       when: on_success
 
@@ -59,6 +63,10 @@ gc-deploy-and-bootstrap:
     GC_HELM_SETS: "--set data.bootstrapEnabled=true"
     GC_ENABLE_BOOTSTRAP: "true"
   rules:
+    - if: "$CI_COMMIT_BRANCH =~ /^release/"
+      when: never
+    - if: "$CI_COMMIT_TAG"
+      when: never
     - if: '$GC == "1"'
       when: on_success
 
@@ -97,3 +105,42 @@ gc-containerize-gitlab:
 
 gc-containerize-gcr:
   needs: ["gc-compile-and-unit-test", "download_gc_plugins"]
+
+.gc_verify_bootstrap:
+  script:
+    - |
+      if [[ "$GC_ENABLE_BOOTSTRAP" == "true" ]]; then
+        echo "----- Verify Bootstrap -----"
+        if kubectl get job "$GC_SERVICE-bootstrap" -n "$GC_HELM_NAMESPACE" >/dev/null 2>&1; then
+          BOOTSTRAP_JOB_NAME="$GC_SERVICE-bootstrap"
+        elif kubectl get job "$GC_SERVICE-bootstrap-spot" -n "$GC_HELM_NAMESPACE" >/dev/null 2>&1; then
+          BOOTSTRAP_JOB_NAME="$GC_SERVICE-bootstrap-spot"
+        else
+          echo "ERROR: Bootstrap job $GC_SERVICE-bootstrap or $GC_SERVICE-bootstrap-spot not found in namespace $GC_HELM_NAMESPACE"
+          exit 1
+        fi
+        echo "Using bootstrap job: $BOOTSTRAP_JOB_NAME"
+        set +e
+        kubectl wait --for=condition=complete job/$BOOTSTRAP_JOB_NAME -n $GC_HELM_NAMESPACE --timeout=900s
+        BOOTSTRAP_JOB_EXIT_CODE=$?
+        set -e
+        if [[ $BOOTSTRAP_JOB_EXIT_CODE -ne 0 ]]; then
+          echo "Bootstrap job failed with exit code $BOOTSTRAP_JOB_EXIT_CODE"
+          echo "----- Describing bootstrap job -----"
+          kubectl describe job "$BOOTSTRAP_JOB_NAME" -n "$GC_HELM_NAMESPACE"
+          echo "----- Getting bootstrap pods -----"
+          kubectl get pods -n "$GC_HELM_NAMESPACE" -l app="$GC_SERVICE-bootstrap"
+          echo "----- Describing pod -----"
+          POD=$(kubectl get pods -n "$GC_HELM_NAMESPACE" -l app="$GC_SERVICE-bootstrap" \
+            --no-headers --sort-by='.metadata.creationTimestamp' \
+            -o custom-columns=:metadata.name | tail -1)
+          if [[ -n "$POD" ]]; then
+            kubectl describe pod "$POD" -n "$GC_HELM_NAMESPACE"
+            echo "----- Logs from bootstrap pod -----"
+            kubectl logs "$POD" -n "$GC_HELM_NAMESPACE"
+          else
+            echo "No pod found for $BOOTSTRAP_JOB_NAME"
+          fi
+          exit 1
+        fi
+      fi
